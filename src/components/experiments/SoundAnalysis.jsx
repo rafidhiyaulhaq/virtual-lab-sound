@@ -14,6 +14,7 @@ import * as d3 from 'd3';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
+import { updateAchievements } from '../../firebase/achievements';
 
 const SoundAnalysis = () => {
   const { user } = useAuth();
@@ -111,6 +112,7 @@ const SoundAnalysis = () => {
       };
       
       await saveExperimentResult(user.uid, 'sound-analysis', experimentData);
+      await updateAchievements(user.uid, 'soundAnalysis');
       await updateProgress(user.uid, 'soundAnalysis');
       setSnackbar({
         open: true,

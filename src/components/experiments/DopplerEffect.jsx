@@ -19,6 +19,7 @@ import * as d3 from 'd3';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
+import { updateAchievements } from '../../firebase/achievements';
 
 const DopplerEffect = () => {
   const { user } = useAuth();
@@ -190,6 +191,7 @@ const DopplerEffect = () => {
       };
       
       await saveExperimentResult(user.uid, 'doppler-effect', experimentData);
+      await updateAchievements(user.uid, 'dopplerEffect');
       await updateProgress(user.uid, 'dopplerEffect');
       setSnackbar({
         open: true,

@@ -18,6 +18,7 @@ import * as d3 from 'd3';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
+import { updateAchievements } from '../../firebase/achievements';
 
 const WaveGenerator = () => {
   const { user } = useAuth();
@@ -68,6 +69,7 @@ const WaveGenerator = () => {
       };
       
       await saveExperimentResult(user.uid, 'wave-generator', experimentData);
+      await updateAchievements(user.uid, 'waveGenerator');
       await updateProgress(user.uid, 'waveGenerator');
       setSnackbar({
         open: true,

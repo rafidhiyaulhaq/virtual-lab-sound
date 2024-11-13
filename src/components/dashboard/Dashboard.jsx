@@ -4,6 +4,7 @@ import { Container, Typography, Grid, Paper, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ResultsHistory from './ResultsHistory';
 import ProgressSection from './ProgressSection';
+import Achievements from './Achievements';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -60,6 +61,7 @@ const Dashboard = () => {
         ))}
       </Grid>
       <ProgressSection />
+      <Achievements />
       <ResultsHistory />
     </Container>
   );
