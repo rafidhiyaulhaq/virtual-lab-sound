@@ -110,7 +110,7 @@ const Achievements = () => {
           <AchievementCard
             title="Doppler Effect"
             count={achievements.dopplerEffect}
-            icon={TrophyIcon}
+            icon={EmojiEventsIcon}  {/* Diganti dari TrophyIcon */}
             badges={badges}
           />
         </Grid>
