@@ -4,10 +4,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
+import { TutorialProvider } from './components/tutorial/TutorialProvider';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
-
-// Import components (akan kita buat)
+// Import components
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/dashboard/Dashboard';
@@ -16,7 +16,7 @@ import WaveGenerator from './components/experiments/WaveGenerator';
 import SoundAnalysis from './components/experiments/SoundAnalysis';
 import DopplerEffect from './components/experiments/DopplerEffect';
 import UserProfile from './components/profile/UserProfile';
-import { TutorialProvider } from './components/tutorial/TutorialProvider';
+import UMLGenerator from './components/documentation/UMLGenerator';
 
 const theme = createTheme({
   palette: {
@@ -33,7 +33,7 @@ const theme = createTheme({
 function App() {
   return (
     <AuthProvider>
-       <TutorialProvider>
+      <TutorialProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Router>
@@ -74,14 +74,22 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route
+                <Route 
                   path="/profile" 
                   element={
                     <ProtectedRoute>
                       <UserProfile />
                     </ProtectedRoute>
-                  }
-                  />
+                  } 
+                />
+                <Route 
+                  path="/documentation" 
+                  element={
+                    <ProtectedRoute>
+                      <UMLGenerator />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>

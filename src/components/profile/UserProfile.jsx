@@ -10,7 +10,8 @@ import {
   Avatar,
   Grid,
   Alert,
-  Snackbar
+  Snackbar,
+  CircularProgress
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { updateUserProfile, getUserProfile } from '../../firebase/profile';
@@ -22,6 +23,7 @@ const UserProfile = () => {
     institution: '',
     role: ''
   });
+  const [isLoading, setIsLoading] = useState(true); // Perbaikan di sini
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -38,8 +40,13 @@ const UserProfile = () => {
           }
         } catch (error) {
           console.error('Error fetching profile:', error);
+          setSnackbar({
+            open: true,
+            message: 'Error fetching profile',
+            severity: 'error'
+          });
         } finally {
-          setLoading(false);
+          setIsLoading(false); // Menggunakan isLoading
         }
       }
     };
@@ -72,6 +79,14 @@ const UserProfile = () => {
       [e.target.name]: e.target.value
     });
   };
+
+  if (isLoading) { // Menggunakan isLoading
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', m: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
