@@ -10,14 +10,24 @@ import {
   FormControl,
   InputLabel,
   Grid,
-  Button 
+  Button,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import * as d3 from 'd3';
+import { useAuth } from '../../context/AuthContext';
+import { saveExperimentResult } from '../../firebase/results';
 
 const WaveGenerator = () => {
+  const { user } = useAuth();
   const [waveType, setWaveType] = useState('sine');
   const [frequency, setFrequency] = useState(1);
   const [amplitude, setAmplitude] = useState(50);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const svgRef = useRef();
 
   const generateWaveData = () => {
@@ -45,6 +55,31 @@ const WaveGenerator = () => {
       points.push({ x, y });
     }
     return points;
+  };
+
+  const saveResult = async () => {
+    try {
+      const experimentData = {
+        waveType,
+        frequency,
+        amplitude,
+        timestamp: new Date().toISOString()
+      };
+      
+      await saveExperimentResult(user.uid, 'wave-generator', experimentData);
+      setSnackbar({
+        open: true,
+        message: 'Experiment saved successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error saving result:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error saving experiment',
+        severity: 'error'
+      });
+    }
   };
 
   useEffect(() => {
@@ -145,9 +180,29 @@ const WaveGenerator = () => {
           </Grid>
         </Grid>
       </Paper>
+      <Button
+        variant="contained"
+        onClick={saveResult}
+        sx={{ my: 2 }}
+      >
+        Save Result
+      </Button>
       <Paper sx={{ p: 2 }}>
         <svg ref={svgRef}></svg>
       </Paper>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
