@@ -1,95 +1,196 @@
 // src/components/dashboard/ResultsHistory.jsx
-// ... imports tetap sama ...
+import React, { useState, useEffect } from 'react';
+import {
+  Paper,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  IconButton,
+  Dialog as ConfirmDialog,
+  DialogContentText
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getUserResults, deleteExperiment } from '../../firebase/results';
+import { useAuth } from '../../context/AuthContext';
 
 const ResultsHistory = () => {
-  // ... state dan useEffect tetap sama ...
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    open: false,
+    experimentId: null
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const { user } = useAuth();
 
-  const handleViewDetails = (result) => {
-    console.log("View Details clicked:", result);
-    setSelectedResult(result);
-    setDetailOpen(true);
+  const fetchResults = async () => {
+    try {
+      if (user) {
+        const userResults = await getUserResults(user.uid);
+        setResults(userResults);
+      }
+    } catch (error) {
+      console.error("Error fetching results:", error);
+      setSnackbar({
+        open: true,
+        message: 'Error fetching results',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ... kode lain tetap sama sampai bagian Dialog ...
+  useEffect(() => {
+    fetchResults();
+  }, [user]);
+
+  const handleDelete = async (experimentId) => {
+    try {
+      await deleteExperiment(experimentId);
+      await fetchResults(); // Refresh data
+      setSnackbar({
+        open: true,
+        message: 'Experiment deleted successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error deleting experiment:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error deleting experiment',
+        severity: 'error'
+      });
+    }
+    setDeleteConfirm({ open: false, experimentId: null });
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', m: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
-      {/* Paper dan Table tetap sama */}
+      <Paper sx={{ p: 2, mt: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Experiment History
+        </Typography>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Experiment Type</TableCell>
+                <TableCell>Parameters</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {results.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    No experiments saved yet
+                  </TableCell>
+                </TableRow>
+              ) : (
+                results.map((result) => (
+                  <TableRow key={result.id}>
+                    <TableCell>
+                      {result.createdAt ? new Date(result.createdAt.seconds * 1000).toLocaleString() : 'N/A'}
+                    </TableCell>
+                    <TableCell>{result.experimentType}</TableCell>
+                    <TableCell>
+                      {result.data && (
+                        <pre style={{ 
+                          margin: 0,
+                          fontSize: '0.8rem',
+                          maxHeight: '60px',
+                          overflow: 'auto'
+                        }}>
+                          {JSON.stringify(result.data, null, 2)}
+                        </pre>
+                      )}
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        color="error"
+                        onClick={() => setDeleteConfirm({
+                          open: true,
+                          experimentId: result.id
+                        })}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
+      {/* Confirmation Dialog */}
       <Dialog
-        open={detailOpen}
-        onClose={() => {
-          console.log('Closing dialog');
-          setDetailOpen(false);
-          setSelectedResult(null); // Tambahkan ini
-        }}
-        maxWidth="md"
-        fullWidth
-        sx={{ 
-          '& .MuiDialog-paper': { 
-            minWidth: '300px',
-            maxHeight: '80vh'
-          },
-          zIndex: 1300 // Tambahkan ini
-        }}
+        open={deleteConfirm.open}
+        onClose={() => setDeleteConfirm({ open: false, experimentId: null })}
       >
-        <DialogTitle>
-          Experiment Details
-        </DialogTitle>
+        <DialogTitle>Delete Experiment</DialogTitle>
         <DialogContent>
-          {selectedResult ? (
-            <Box sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                {selectedResult.experimentType}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                {selectedResult.createdAt ? 
-                  new Date(selectedResult.createdAt.seconds * 1000).toLocaleString() 
-                  : 'N/A'
-                }
-              </Typography>
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                Parameters:
-              </Typography>
-              <Box 
-                component="pre" 
-                sx={{ 
-                  backgroundColor: '#f5f5f5', 
-                  p: 2,
-                  borderRadius: '4px',
-                  overflow: 'auto',
-                  maxWidth: '100%'
-                }}
-              >
-                {JSON.stringify(selectedResult.data, null, 2)}
-              </Box>
-            </Box>
-          ) : (
-            <Typography>No data available</Typography>
-          )}
+          <DialogContentText>
+            Are you sure you want to delete this experiment? This action cannot be undone.
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
-          {selectedResult && (
-            <Button 
-              onClick={() => handleExport(selectedResult)}
-              variant="outlined"
-              color="primary"
-            >
-              Export PDF
-            </Button>
-          )}
           <Button 
-            onClick={() => {
-              setDetailOpen(false);
-              setSelectedResult(null);
-            }}
+            onClick={() => setDeleteConfirm({ open: false, experimentId: null })}
           >
-            Close
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => handleDelete(deleteConfirm.experimentId)}
+            color="error"
+            variant="contained"
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar tetap sama */}
+      {/* Snackbar untuk notifikasi */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert 
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

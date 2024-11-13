@@ -7,7 +7,9 @@ import {
   where, 
   getDocs, 
   serverTimestamp,
-  orderBy 
+  orderBy,
+  deleteDoc,
+  doc
 } from 'firebase/firestore';
 
 export const saveExperimentResult = async (userId, experimentType, data) => {
@@ -37,6 +39,16 @@ export const getUserResults = async (userId) => {
       ...doc.data()
     }));
   } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteExperiment = async (experimentId) => {
+  try {
+    await deleteDoc(doc(db, 'results', experimentId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting experiment:', error);
     throw error;
   }
 };
