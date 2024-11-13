@@ -2,6 +2,7 @@
 import React from 'react';
 import { Container, Typography, Grid, Paper, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ResultsHistory from './ResultsHistory';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -57,8 +58,11 @@ const Dashboard = () => {
           </Grid>
         ))}
       </Grid>
+      <ResultsHistory />
     </Container>
   );
 };
+
+
 
 export default Dashboard;
