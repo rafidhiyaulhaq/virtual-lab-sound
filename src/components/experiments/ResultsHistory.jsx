@@ -152,7 +152,10 @@ const ResultsHistory = () => {
 
       <Dialog
         open={detailOpen}
-        onClose={() => setDetailOpen(false)}
+        onClose={() => {
+          console.log('Dialog closing');
+          setDetailOpen(false);
+        }} 
         maxWidth="md"
         fullWidth
         sx={{ zIndex: 1500 }}
