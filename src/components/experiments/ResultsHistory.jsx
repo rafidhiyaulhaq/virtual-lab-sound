@@ -62,6 +62,33 @@ const ResultsHistory = () => {
     fetchResults();
   }, [user]);
 
+  const handleExport = (result) => {
+    try {
+      if (!result) {
+        console.error('No result to export');
+        setSnackbar({
+          open: true,
+          message: 'No data to export',
+          severity: 'error'
+        });
+        return;
+      }
+      exportToPDF(result, result.experimentType);
+      setSnackbar({
+        open: true,
+        message: 'PDF exported successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error exporting PDF: ' + error.message,
+        severity: 'error'
+      });
+    }
+  };
+  
   const handleDelete = async (experimentId) => {
     try {
       await deleteExperiment(experimentId);
@@ -133,6 +160,15 @@ const ResultsHistory = () => {
                       )}
                     </TableCell>
                     <TableCell align="right">
+                      <Button 
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleExport(result)}
+                        sx={{ mr: 1 }}
+                      >
+                        Export PDF
+                      </Button>
                       <IconButton
                         color="error"
                         onClick={() => setDeleteConfirm({
