@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { getUserResults } from '../../firebase/results';
 import { useAuth } from '../../context/AuthContext';
+import { exportToPDF } from '../../utils/pdfExport';
 
 const ResultsHistory = () => {
   const [results, setResults] = useState([]);
@@ -26,6 +27,9 @@ const ResultsHistory = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const { user } = useAuth();
+  const handleExport = (result) => {
+    exportToPDF(result, result.experimentType);
+  };
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -136,6 +140,13 @@ const ResultsHistory = () => {
           )}
         </DialogContent>
         <DialogActions>
+          <Button 
+            onClick={() => handleExport(selectedResult)}
+            variant="outlined"
+            color="primary"
+          >
+            Export to PDF
+          </Button>
           <Button onClick={() => setDetailOpen(false)}>
             Close
           </Button>
