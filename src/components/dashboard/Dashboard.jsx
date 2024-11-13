@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import ResultsHistory from './ResultsHistory';
 import ProgressSection from './ProgressSection';
 import Achievements from './Achievements';
+import AnalyticsDashboard from '../analytics/AnalyticsDashboard';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ const Dashboard = () => {
       </Grid>
       <ProgressSection />
       <Achievements />
+      <AnalyticsDashboard />
       <ResultsHistory />
     </Container>
   );
