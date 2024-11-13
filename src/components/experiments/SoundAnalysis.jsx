@@ -7,14 +7,23 @@ import {
   Button,
   Grid,
   Alert,
-  LinearProgress
+  LinearProgress,
+  Snackbar
 } from '@mui/material';
 import * as d3 from 'd3';
+import { useAuth } from '../../context/AuthContext';
+import { saveExperimentResult } from '../../firebase/results';
 
 const SoundAnalysis = () => {
+  const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [audioData, setAudioData] = useState([]);
   const [error, setError] = useState('');
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const canvasRef = useRef();
   const analyserRef = useRef();
   const mediaRecorderRef = useRef();
@@ -92,6 +101,30 @@ const SoundAnalysis = () => {
     mediaRecorderRef.current?.stop();
   };
 
+  const saveResult = async () => {
+    try {
+      const experimentData = {
+        recordingDuration: audioData.length > 0 ? 'Recording available' : 'No recording',
+        timestamp: new Date().toISOString(),
+        hasAudioData: audioData.length > 0
+      };
+      
+      await saveExperimentResult(user.uid, 'sound-analysis', experimentData);
+      setSnackbar({
+        open: true,
+        message: 'Sound analysis saved successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error saving result:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error saving sound analysis',
+        severity: 'error'
+      });
+    }
+  };
+
   const downloadRecording = () => {
     if (audioData.length === 0) return;
     
@@ -139,8 +172,17 @@ const SoundAnalysis = () => {
               variant="outlined"
               onClick={downloadRecording}
               disabled={audioData.length === 0}
+              sx={{ mr: 2 }}
             >
               Download Recording
+            </Button>
+            <Button
+              variant="contained"
+              onClick={saveResult}
+              disabled={!audioData.length}
+              color="success"
+            >
+              Save Analysis
             </Button>
           </Grid>
         </Grid>
@@ -154,6 +196,20 @@ const SoundAnalysis = () => {
           <LinearProgress />
         </Paper>
       )}
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
