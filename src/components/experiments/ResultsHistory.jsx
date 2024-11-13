@@ -15,7 +15,9 @@ import {
   DialogContent,
   DialogActions,
   Box,
-  CircularProgress
+  CircularProgress,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import { getUserResults } from '../../firebase/results';
 import { useAuth } from '../../context/AuthContext';
@@ -27,9 +29,11 @@ const ResultsHistory = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const { user } = useAuth();
-  const handleExport = (result) => {
-    exportToPDF(result, result.experimentType);
-  };
+  const [exportSnackbar, setExportSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -51,6 +55,24 @@ const ResultsHistory = () => {
   const handleViewDetails = (result) => {
     setSelectedResult(result);
     setDetailOpen(true);
+  };
+
+  const handleExport = (result) => {
+    try {
+      exportToPDF(result, result.experimentType);
+      setExportSnackbar({
+        open: true,
+        message: 'PDF exported successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      setExportSnackbar({
+        open: true,
+        message: 'Error exporting PDF',
+        severity: 'error'
+      });
+    }
   };
 
   if (loading) {
@@ -95,8 +117,17 @@ const ResultsHistory = () => {
                         size="small" 
                         variant="outlined"
                         onClick={() => handleViewDetails(result)}
+                        sx={{ mr: 1 }}
                       >
                         View Details
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleExport(result)}
+                      >
+                        Export PDF
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -152,6 +183,20 @@ const ResultsHistory = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={exportSnackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setExportSnackbar({ ...exportSnackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setExportSnackbar({ ...exportSnackbar, open: false })} 
+          severity={exportSnackbar.severity}
+        >
+          {exportSnackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
