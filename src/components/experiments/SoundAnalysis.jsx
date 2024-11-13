@@ -15,12 +15,14 @@ import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
 import { updateAchievements } from '../../firebase/achievements';
+import ExperimentFeedback from '../feedback/ExperimentFeedback';
 
 const SoundAnalysis = () => {
   const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [audioData, setAudioData] = useState([]);
   const [error, setError] = useState('');
+  const [showFeedback, setShowFeedback] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -119,6 +121,7 @@ const SoundAnalysis = () => {
         message: 'Sound analysis saved successfully!',
         severity: 'success'
       });
+      setShowFeedback(true);
     } catch (error) {
       console.error('Error saving result:', error);
       setSnackbar({
@@ -214,6 +217,11 @@ const SoundAnalysis = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <ExperimentFeedback
+        open={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        experimentType="wave-generator"
+        />
     </Container>
   );
 };

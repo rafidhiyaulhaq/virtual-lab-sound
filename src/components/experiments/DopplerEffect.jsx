@@ -20,6 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
 import { updateAchievements } from '../../firebase/achievements';
+import ExperimentFeedback from '../feedback/ExperimentFeedback';
 
 const DopplerEffect = () => {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ const DopplerEffect = () => {
   const [frequency, setFrequency] = useState(440);
   const [observerPosition, setObserverPosition] = useState(50);
   const [soundType, setSoundType] = useState('sine');
+  const [showFeedback, setShowFeedback] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -198,6 +200,7 @@ const DopplerEffect = () => {
         message: 'Experiment configuration saved successfully!',
         severity: 'success'
       });
+      setShowFeedback(true);
     } catch (error) {
       console.error('Error saving result:', error);
       setSnackbar({
@@ -333,6 +336,11 @@ const DopplerEffect = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <ExperimentFeedback
+        open={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        experimentType="wave-generator"
+        />
     </Container>
   );
 };

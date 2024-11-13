@@ -210,6 +210,11 @@ const WaveGenerator = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <ExperimentFeedback
+        open={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        experimentType="wave-generator"
+        />
     </Container>
   );
 };
