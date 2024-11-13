@@ -11,16 +11,26 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Box
+  Box,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import * as d3 from 'd3';
+import { useAuth } from '../../context/AuthContext';
+import { saveExperimentResult } from '../../firebase/results';
 
 const DopplerEffect = () => {
+  const { user } = useAuth();
   const [isPlaying, setIsPlaying] = useState(false);
   const [sourceSpeed, setSourceSpeed] = useState(30);
   const [frequency, setFrequency] = useState(440);
   const [observerPosition, setObserverPosition] = useState(50);
   const [soundType, setSoundType] = useState('sine');
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   
   const audioContextRef = useRef();
   const oscillatorRef = useRef();
@@ -28,7 +38,6 @@ const DopplerEffect = () => {
   const svgRef = useRef();
   const graphRef = useRef();
 
-  // Initialize Audio Context and SVG
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     setupVisualization();
@@ -38,11 +47,9 @@ const DopplerEffect = () => {
   }, []);
 
   const setupVisualization = () => {
-    // Setup main visualization
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     
-    // Add observer
     svg.append("circle")
       .attr("class", "observer")
       .attr("cx", `${observerPosition}%`)
@@ -50,7 +57,6 @@ const DopplerEffect = () => {
       .attr("r", 10)
       .attr("fill", "#2196f3");
 
-    // Add label for observer
     svg.append("text")
       .attr("class", "observer-label")
       .attr("x", `${observerPosition}%`)
@@ -58,11 +64,9 @@ const DopplerEffect = () => {
       .attr("text-anchor", "middle")
       .text("Observer");
 
-    // Setup frequency graph
     const graphSvg = d3.select(graphRef.current);
     graphSvg.selectAll("*").remove();
 
-    // Add axes
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const width = graphSvg.node().getBoundingClientRect().width - margin.left - margin.right;
     const height = 150 - margin.top - margin.bottom;
@@ -70,16 +74,13 @@ const DopplerEffect = () => {
     const g = graphSvg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Add X axis
     g.append("g")
       .attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(d3.scaleLinear().range([0, width])));
 
-    // Add Y axis
     g.append("g")
       .call(d3.axisLeft(d3.scaleLinear().domain([0, 1000]).range([height, 0])));
 
-    // Add line for frequency changes
     g.append("path")
       .attr("class", "frequency-line")
       .attr("fill", "none")
@@ -124,7 +125,6 @@ const DopplerEffect = () => {
       const dopplerFreq = calculateDopplerFrequency(frequency, sourcePos);
       oscillator.frequency.setValueAtTime(dopplerFreq, audioContextRef.current.currentTime);
       
-      // Update source position visualization
       const svg = d3.select(svgRef.current);
       svg.selectAll(".source").remove();
       svg.append("circle")
@@ -134,13 +134,11 @@ const DopplerEffect = () => {
         .attr("r", 8)
         .attr("fill", "#f50057");
 
-      // Update volume based on distance
       const observerPos = (observerPosition / 100) * window.innerWidth;
       const distance = Math.abs(sourcePos - observerPos);
       const volume = Math.max(0.1, 1 - (distance / window.innerWidth));
       gainNode.gain.setValueAtTime(volume * 0.1, audioContextRef.current.currentTime);
 
-      // Update frequency graph
       frequencyData.push({ x: sourcePos, y: dopplerFreq });
       if (frequencyData.length > 100) frequencyData.shift();
 
@@ -173,13 +171,37 @@ const DopplerEffect = () => {
     }
     setIsPlaying(false);
 
-    // Clear source visualization
     const svg = d3.select(svgRef.current);
     svg.selectAll(".source").remove();
 
-    // Clear frequency graph
     const graphSvg = d3.select(graphRef.current);
     graphSvg.select(".frequency-line").datum([]).attr("d", "");
+  };
+
+  const saveResult = async () => {
+    try {
+      const experimentData = {
+        sourceSpeed,
+        frequency,
+        observerPosition,
+        soundType,
+        timestamp: new Date().toISOString()
+      };
+      
+      await saveExperimentResult(user.uid, 'doppler-effect', experimentData);
+      setSnackbar({
+        open: true,
+        message: 'Experiment configuration saved successfully!',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error saving result:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error saving experiment configuration',
+        severity: 'error'
+      });
+    }
   };
 
   return (
@@ -259,7 +281,7 @@ const DopplerEffect = () => {
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 2 }}>
           <Button
             variant="contained"
             color={isPlaying ? "secondary" : "primary"}
@@ -267,6 +289,14 @@ const DopplerEffect = () => {
             sx={{ minWidth: 200 }}
           >
             {isPlaying ? 'Stop Simulation' : 'Start Simulation'}
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={saveResult}
+            sx={{ minWidth: 200 }}
+          >
+            Save Configuration
           </Button>
         </Box>
       </Paper>
@@ -284,19 +314,21 @@ const DopplerEffect = () => {
         <Typography variant="body1" paragraph>
           • Graph: Shows real-time frequency changes as source moves
         </Typography>
-        <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-          How it works
-        </Typography>
-        <Typography variant="body1" paragraph>
-          This simulator demonstrates the Doppler effect - the change in frequency of a sound wave 
-          for an observer moving relative to its source. As the source moves relative to the observer:
-        </Typography>
-        <ul>
-          <li>The frequency increases as the source approaches (graph goes up)</li>
-          <li>The frequency decreases as the source moves away (graph goes down)</li>
-          <li>The volume changes based on distance between source and observer</li>
-        </ul>
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
