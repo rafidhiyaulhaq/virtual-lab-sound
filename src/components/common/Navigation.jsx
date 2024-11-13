@@ -29,6 +29,12 @@ const Navigation = () => {
           <Button color="inherit" onClick={handleLogout}>
             Logout
           </Button>
+          <Button
+            color="inherit" 
+            onClick={() => navigate('/profile')}
+          >
+            Profile
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

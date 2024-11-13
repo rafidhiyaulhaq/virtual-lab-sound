@@ -15,6 +15,7 @@ import Navigation from './components/common/Navigation';
 import WaveGenerator from './components/experiments/WaveGenerator';
 import SoundAnalysis from './components/experiments/SoundAnalysis';
 import DopplerEffect from './components/experiments/DopplerEffect';
+import UserProfile from './components/profile/UserProfile';
 
 const theme = createTheme({
   palette: {
@@ -71,6 +72,14 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              <Route
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                }
+                />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
