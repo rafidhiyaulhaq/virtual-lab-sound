@@ -3,6 +3,7 @@ import React from 'react';
 import { Container, Typography, Grid, Paper, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ResultsHistory from './ResultsHistory';
+import ProgressSection from './ProgressSection';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ const Dashboard = () => {
           </Grid>
         ))}
       </Grid>
+      <ProgressSection />
       <ResultsHistory />
     </Container>
   );
