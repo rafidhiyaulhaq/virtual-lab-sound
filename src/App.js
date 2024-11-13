@@ -11,6 +11,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import Navigation from './components/common/Navigation';
 import WaveGenerator from './components/experiments/WaveGenerator';
 import SoundAnalysis from './components/experiments/SoundAnalysis';
+import DopplerEffect from './components/experiments/DopplerEffect';
 
 const theme = createTheme({
   palette: {
@@ -38,6 +39,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/wave-generator" element={<WaveGenerator />} />
             <Route path="/sound-analysis" element={<SoundAnalysis />} />
+            <Route path="/doppler-effect" element={<DopplerEffect />} />
           </Routes>
         </div>
       </Router>
