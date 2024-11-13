@@ -10,11 +10,9 @@ import {
   LinearProgress,
   Tooltip
 } from '@mui/material';
-import {
-  EmojiEvents as TrophyIcon,
-  Science as ScienceIcon,
-  Star as StarIcon
-} from '@mui/icons-material';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import ScienceIcon from '@mui/icons-material/Science';
+import StarIcon from '@mui/icons-material/Star';
 import { useAuth } from '../../context/AuthContext';
 import { getAchievements } from '../../firebase/achievements';
 
