@@ -23,11 +23,79 @@ const theme = createTheme({
     mode: 'light',
     primary: {
       main: '#2196f3',
+      light: '#64b5f6',
+      dark: '#1976d2',
     },
     secondary: {
       main: '#f50057',
+      light: '#ff4081',
+      dark: '#c51162',
     },
+    background: {
+      default: '#f5f5f5',
+      paper: '#ffffff',
+    }
   },
+  shape: {
+    borderRadius: 12
+  },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+          }
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '8px',
+          textTransform: 'none',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          }
+        },
+        contained: {
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }
+      }
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '16px',
+          transition: 'all 0.3s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-8px)',
+            boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
+          }
+        }
+      }
+    }
+  },
+  transitions: {
+    easing: {
+      easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      sharp: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      smooth: 'cubic-bezier(0.4, 0, 0.2, 1)'
+    },
+    duration: {
+      shortest: 150,
+      shorter: 200,
+      short: 250,
+      standard: 300,
+      complex: 375,
+      enteringScreen: 225,
+      leavingScreen: 195
+    }
+  }
 });
 
 function App() {
