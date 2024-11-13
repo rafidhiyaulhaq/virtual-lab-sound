@@ -16,6 +16,7 @@ import WaveGenerator from './components/experiments/WaveGenerator';
 import SoundAnalysis from './components/experiments/SoundAnalysis';
 import DopplerEffect from './components/experiments/DopplerEffect';
 import UserProfile from './components/profile/UserProfile';
+import { TutorialProvider } from './components/tutorial/TutorialProvider';
 
 const theme = createTheme({
   palette: {
@@ -32,59 +33,61 @@ const theme = createTheme({
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <div>
-            <Navigation />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wave-generator" 
-                element={
-                  <ProtectedRoute>
-                    <WaveGenerator />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/sound-analysis" 
-                element={
-                  <ProtectedRoute>
-                    <SoundAnalysis />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/doppler-effect" 
-                element={
-                  <ProtectedRoute>
-                    <DopplerEffect />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <UserProfile />
-                  </ProtectedRoute>
-                }
+       <TutorialProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Router>
+            <div>
+              <Navigation />
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
                 />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </div>
-        </Router>
-      </ThemeProvider>
+                <Route 
+                  path="/wave-generator" 
+                  element={
+                    <ProtectedRoute>
+                      <WaveGenerator />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/sound-analysis" 
+                  element={
+                    <ProtectedRoute>
+                      <SoundAnalysis />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/doppler-effect" 
+                  element={
+                    <ProtectedRoute>
+                      <DopplerEffect />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  }
+                  />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </div>
+          </Router>
+        </ThemeProvider>
+      </TutorialProvider>
     </AuthProvider>
   );
 }

@@ -22,7 +22,6 @@ const UserProfile = () => {
     institution: '',
     role: ''
   });
-  const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',

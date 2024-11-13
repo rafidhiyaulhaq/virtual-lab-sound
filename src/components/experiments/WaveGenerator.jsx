@@ -1,5 +1,5 @@
 // src/components/experiments/WaveGenerator.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Container, 
   Paper, 
@@ -14,12 +14,15 @@ import {
   Alert,
   Snackbar
 } from '@mui/material';
+import { Help } from '@mui/icons-material';
 import * as d3 from 'd3';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
 import { updateAchievements } from '../../firebase/achievements';
 import ExperimentFeedback from '../feedback/ExperimentFeedback';
+import { useTutorial } from '../../components/tutorial/TutorialProvider';
+import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
 
 const WaveGenerator = () => {
   const { user } = useAuth();
@@ -27,6 +30,8 @@ const WaveGenerator = () => {
   const [frequency, setFrequency] = useState(1);
   const [amplitude, setAmplitude] = useState(50);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const { startTutorial } = useTutorial();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -34,7 +39,7 @@ const WaveGenerator = () => {
   });
   const svgRef = useRef();
 
-  const generateWaveData = () => {
+  const generateWaveData = useCallback(() => {
     const points = [];
     const width = 800;
     const steps = 100;
@@ -59,7 +64,23 @@ const WaveGenerator = () => {
       points.push({ x, y });
     }
     return points;
-  };
+  }, [waveType, frequency, amplitude]);
+
+  const tutorialSteps = [
+    {
+      target: '.wave-type-selector',
+      content: 'Choose different wave types to see how they look',
+      disableBeacon: true
+    },
+    {
+      target: '.frequency-slider',
+      content: 'Adjust the frequency to change how fast the wave moves'
+    },
+    {
+      target: '.amplitude-slider',
+      content: 'Change the amplitude to make waves bigger or smaller'
+    }
+  ];
 
   const saveResult = async () => {
     try {
@@ -139,7 +160,15 @@ const WaveGenerator = () => {
       .attr("stroke-width", 2)
       .attr("d", line);
 
-  }, [waveType, frequency, amplitude]);
+  }, [generateWaveData]);
+
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('hasSeenWaveGeneratorTutorial');
+    if (!hasSeenTutorial) {
+      startTutorial(tutorialSteps);
+      localStorage.setItem('hasSeenWaveGeneratorTutorial', 'true');
+    }
+  }, [startTutorial, tutorialSteps]);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -149,7 +178,7 @@ const WaveGenerator = () => {
       <Paper sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
+            <FormControl fullWidth className="wave-type-selector">
               <InputLabel>Wave Type</InputLabel>
               <Select
                 value={waveType}
@@ -167,6 +196,7 @@ const WaveGenerator = () => {
               Frequency: {frequency} Hz
             </Typography>
             <Slider
+              className="frequency-slider"
               value={frequency}
               onChange={(e, newValue) => setFrequency(newValue)}
               min={0.1}
@@ -179,6 +209,7 @@ const WaveGenerator = () => {
               Amplitude: {amplitude}
             </Typography>
             <Slider
+              className="amplitude-slider"
               value={amplitude}
               onChange={(e, newValue) => setAmplitude(newValue)}
               min={0}
@@ -193,6 +224,14 @@ const WaveGenerator = () => {
         sx={{ my: 2 }}
       >
         Save Result
+      </Button>
+      <Button
+        variant="outlined"
+        onClick={() => setShowGuide(true)}
+        startIcon={<Help />}
+        sx={{ ml: 2 }}
+      >
+        Help & Tips
       </Button>
       <Paper sx={{ p: 2 }}>
         <svg ref={svgRef}></svg>
@@ -214,7 +253,11 @@ const WaveGenerator = () => {
         open={showFeedback}
         onClose={() => setShowFeedback(false)}
         experimentType="wave-generator"
-        />
+      />
+      <TipsAndGuides 
+        open={showGuide}
+        onClose={() => setShowGuide(false)}
+      />
     </Container>
   );
 };

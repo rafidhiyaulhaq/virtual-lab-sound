@@ -5,8 +5,7 @@ import {
   query, 
   where, 
   getDocs,
-  orderBy,
-  limit 
+  orderBy 
 } from 'firebase/firestore';
 
 export const getUserAnalytics = async (userId) => {

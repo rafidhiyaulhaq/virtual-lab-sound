@@ -1,5 +1,5 @@
 // src/components/experiments/SoundAnalysis.jsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Container,
   Paper,
@@ -8,14 +8,17 @@ import {
   Grid,
   Alert,
   LinearProgress,
-  Snackbar
+  Snackbar,
+  Box
 } from '@mui/material';
-import * as d3 from 'd3';
+import { Help } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
 import { updateAchievements } from '../../firebase/achievements';
 import ExperimentFeedback from '../feedback/ExperimentFeedback';
+import { useTutorial } from '../../components/tutorial/TutorialProvider';
+import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
 
 const SoundAnalysis = () => {
   const { user } = useAuth();
@@ -23,20 +26,36 @@ const SoundAnalysis = () => {
   const [audioData, setAudioData] = useState([]);
   const [error, setError] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const { startTutorial } = useTutorial();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success'
   });
+
   const canvasRef = useRef();
   const analyserRef = useRef();
   const mediaRecorderRef = useRef();
+  const animationFrameRef = useRef();
 
-  useEffect(() => {
-    setupAudioContext();
-  }, []);
+  const tutorialSteps = [
+    {
+      target: '.record-button',
+      content: 'Click to start recording audio for analysis',
+      disableBeacon: true
+    },
+    {
+      target: '.visualization-canvas',
+      content: 'Watch the frequency spectrum in real-time'
+    },
+    {
+      target: '.download-button',
+      content: 'Download your recorded audio for further analysis'
+    }
+  ];
 
-  const setupAudioContext = async () => {
+  const setupAudioContext = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -58,9 +77,23 @@ const SoundAnalysis = () => {
     } catch (err) {
       setError('Error accessing microphone: ' + err.message);
     }
-  };
+  }, []);
 
-  const drawFrequencyData = () => {
+  useEffect(() => {
+    setupAudioContext();
+    const hasSeenTutorial = localStorage.getItem('hasSeenSoundAnalysisTutorial');
+    if (!hasSeenTutorial) {
+      startTutorial(tutorialSteps);
+      localStorage.setItem('hasSeenSoundAnalysisTutorial', 'true');
+    }
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [setupAudioContext, startTutorial, tutorialSteps]);
+
+  const drawFrequencyData = useCallback(() => {
     if (!analyserRef.current || !canvasRef.current) return;
 
     const analyser = analyserRef.current;
@@ -70,9 +103,14 @@ const SoundAnalysis = () => {
     const dataArray = new Uint8Array(bufferLength);
 
     const draw = () => {
-      if (!isRecording) return;
+      if (!isRecording) {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        return;
+      }
 
-      requestAnimationFrame(draw);
+      animationFrameRef.current = requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
 
       canvasCtx.fillStyle = 'rgb(255, 255, 255)';
@@ -91,7 +129,7 @@ const SoundAnalysis = () => {
     };
 
     draw();
-  };
+  }, [isRecording]);
 
   const startRecording = () => {
     setIsRecording(true);
@@ -118,7 +156,7 @@ const SoundAnalysis = () => {
       await updateProgress(user.uid, 'soundAnalysis');
       setSnackbar({
         open: true,
-        message: 'Sound analysis saved successfully!',
+        message: 'Analysis saved successfully!',
         severity: 'success'
       });
       setShowFeedback(true);
@@ -126,7 +164,7 @@ const SoundAnalysis = () => {
       console.error('Error saving result:', error);
       setSnackbar({
         open: true,
-        message: 'Error saving sound analysis',
+        message: 'Error saving analysis',
         severity: 'error'
       });
     }
@@ -161,36 +199,46 @@ const SoundAnalysis = () => {
           <Grid item xs={12}>
             <canvas
               ref={canvasRef}
+              className="visualization-canvas"
               width={800}
               height={200}
               style={{ border: '1px solid #ddd', borderRadius: '4px' }}
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color={isRecording ? "secondary" : "primary"}
-              onClick={isRecording ? stopRecording : startRecording}
-              sx={{ mr: 2 }}
-            >
-              {isRecording ? 'Stop Recording' : 'Start Recording'}
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={downloadRecording}
-              disabled={audioData.length === 0}
-              sx={{ mr: 2 }}
-            >
-              Download Recording
-            </Button>
-            <Button
-              variant="contained"
-              onClick={saveResult}
-              disabled={!audioData.length}
-              color="success"
-            >
-              Save Analysis
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                color={isRecording ? "secondary" : "primary"}
+                onClick={isRecording ? stopRecording : startRecording}
+                className="record-button"
+              >
+                {isRecording ? 'Stop Recording' : 'Start Recording'}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={downloadRecording}
+                disabled={audioData.length === 0}
+                className="download-button"
+              >
+                Download Recording
+              </Button>
+              <Button
+                variant="contained"
+                onClick={saveResult}
+                disabled={!audioData.length}
+                color="success"
+              >
+                Save Analysis
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => setShowGuide(true)}
+                startIcon={<Help />}
+              >
+                Help & Tips
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
@@ -220,8 +268,12 @@ const SoundAnalysis = () => {
       <ExperimentFeedback
         open={showFeedback}
         onClose={() => setShowFeedback(false)}
-        experimentType="wave-generator"
-        />
+        experimentType="sound-analysis"
+      />
+      <TipsAndGuides 
+        open={showGuide}
+        onClose={() => setShowGuide(false)}
+      />
     </Container>
   );
 };

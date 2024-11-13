@@ -46,3 +46,14 @@ export const getProgress = async (userId) => {
     throw error;
   }
 };
+
+export const getUserProgress = async (userId) => {
+  try {
+    const progressRef = doc(db, 'progress', userId);
+    const progressDoc = await getDoc(progressRef);
+    return progressDoc.exists() ? progressDoc.data() : null;
+    // Atau hapus variabel data jika tidak digunakan
+  } catch (error) {
+    throw error;
+  }
+};

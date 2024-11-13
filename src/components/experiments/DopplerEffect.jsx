@@ -1,5 +1,5 @@
 // src/components/experiments/DopplerEffect.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Container,
   Paper,
@@ -15,12 +15,15 @@ import {
   Alert,
   Snackbar
 } from '@mui/material';
+import { Help } from '@mui/icons-material';
 import * as d3 from 'd3';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
 import { updateAchievements } from '../../firebase/achievements';
 import ExperimentFeedback from '../feedback/ExperimentFeedback';
+import { useTutorial } from '../../components/tutorial/TutorialProvider';
+import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
 
 const DopplerEffect = () => {
   const { user } = useAuth();
@@ -30,6 +33,8 @@ const DopplerEffect = () => {
   const [observerPosition, setObserverPosition] = useState(50);
   const [soundType, setSoundType] = useState('sine');
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const { startTutorial } = useTutorial();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -42,15 +47,27 @@ const DopplerEffect = () => {
   const svgRef = useRef();
   const graphRef = useRef();
 
-  useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-    setupVisualization();
-    return () => {
-      audioContextRef.current?.close();
-    };
-  }, []);
+  const tutorialSteps = [
+    {
+      target: '.sound-type-selector',
+      content: 'Choose different sound types to hear how they change',
+      disableBeacon: true
+    },
+    {
+      target: '.speed-slider',
+      content: 'Adjust the source speed to see the Doppler effect'
+    },
+    {
+      target: '.frequency-slider',
+      content: 'Change the base frequency of the sound'
+    },
+    {
+      target: '.position-slider',
+      content: 'Move the observer position to hear the effect from different points'
+    }
+  ];
 
-  const setupVisualization = () => {
+  const setupVisualization = useCallback(() => {
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     
@@ -90,23 +107,30 @@ const DopplerEffect = () => {
       .attr("fill", "none")
       .attr("stroke", "#f50057")
       .attr("stroke-width", 2);
-  };
-
-  useEffect(() => {
-    if (!svgRef.current) return;
-    const svg = d3.select(svgRef.current);
-    svg.select(".observer")
-      .attr("cx", `${observerPosition}%`);
-    svg.select(".observer-label")
-      .attr("x", `${observerPosition}%`);
   }, [observerPosition]);
 
-  const calculateDopplerFrequency = (baseFreq, sourcePos) => {
+  useEffect(() => {
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    setupVisualization();
+    return () => {
+      audioContextRef.current?.close();
+    };
+  }, [setupVisualization]);
+
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('hasSeenDopplerEffectTutorial');
+    if (!hasSeenTutorial) {
+      startTutorial(tutorialSteps);
+      localStorage.setItem('hasSeenDopplerEffectTutorial', 'true');
+    }
+  }, [startTutorial, tutorialSteps]);
+
+  const calculateDopplerFrequency = useCallback((baseFreq, sourcePos) => {
     const speedOfSound = 343;
     const observerPos = (observerPosition / 100) * window.innerWidth;
     const sourceVelocity = sourceSpeed * (sourcePos > observerPos ? -1 : 1);
     return baseFreq * ((speedOfSound) / (speedOfSound + sourceVelocity));
-  };
+  }, [observerPosition, sourceSpeed]);
 
   const startSimulation = () => {
     if (!audioContextRef.current) return;
@@ -197,7 +221,7 @@ const DopplerEffect = () => {
       await updateProgress(user.uid, 'dopplerEffect');
       setSnackbar({
         open: true,
-        message: 'Experiment configuration saved successfully!',
+        message: 'Experiment saved successfully!',
         severity: 'success'
       });
       setShowFeedback(true);
@@ -205,7 +229,7 @@ const DopplerEffect = () => {
       console.error('Error saving result:', error);
       setSnackbar({
         open: true,
-        message: 'Error saving experiment configuration',
+        message: 'Error saving experiment',
         severity: 'error'
       });
     }
@@ -234,6 +258,7 @@ const DopplerEffect = () => {
               Source Speed: {sourceSpeed} m/s
             </Typography>
             <Slider
+              className="speed-slider"
               value={sourceSpeed}
               onChange={(e, newValue) => setSourceSpeed(newValue)}
               min={0}
@@ -248,6 +273,7 @@ const DopplerEffect = () => {
               Base Frequency: {frequency} Hz
             </Typography>
             <Slider
+              className="frequency-slider"
               value={frequency}
               onChange={(e, newValue) => setFrequency(newValue)}
               min={220}
@@ -262,6 +288,7 @@ const DopplerEffect = () => {
               Observer Position: {observerPosition}%
             </Typography>
             <Slider
+              className="position-slider"
               value={observerPosition}
               onChange={(e, newValue) => setObserverPosition(newValue)}
               min={0}
@@ -271,7 +298,7 @@ const DopplerEffect = () => {
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
+            <FormControl fullWidth className="sound-type-selector">
               <InputLabel>Sound Type</InputLabel>
               <Select
                 value={soundType}
@@ -299,28 +326,20 @@ const DopplerEffect = () => {
           </Button>
           <Button
             variant="contained"
-            color="success"
             onClick={saveResult}
             sx={{ minWidth: 200 }}
+            disabled={!isPlaying}
           >
-            Save Configuration
+            Save Result
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => setShowGuide(true)}
+            startIcon={<Help />}
+          >
+            Help & Tips
           </Button>
         </Box>
-      </Paper>
-
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Visualization Guide
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Blue circle: Observer (listener) position
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Red circle: Moving sound source
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Graph: Shows real-time frequency changes as source moves
-        </Typography>
       </Paper>
 
       <Snackbar
@@ -339,8 +358,12 @@ const DopplerEffect = () => {
       <ExperimentFeedback
         open={showFeedback}
         onClose={() => setShowFeedback(false)}
-        experimentType="wave-generator"
-        />
+        experimentType="doppler-effect"
+      />
+      <TipsAndGuides 
+        open={showGuide}
+        onClose={() => setShowGuide(false)}
+      />
     </Container>
   );
 };
