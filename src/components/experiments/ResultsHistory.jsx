@@ -152,13 +152,15 @@ const ResultsHistory = () => {
 
       <Dialog
         open={detailOpen}
-        onClose={() => {
-          console.log('Dialog closing');
-          setDetailOpen(false);
-        }} 
+        onClose={() => setDetailOpen(false)}
         maxWidth="md"
         fullWidth
-        sx={{ zIndex: 1500 }}
+        sx={{ 
+          '& .MuiDialog-paper': { 
+            minWidth: '300px',
+            maxHeight: '80vh'
+        }
+      }}
       >
         <DialogTitle>
           Experiment Details
