@@ -30,7 +30,7 @@ const ExperimentCard = ({ title, description, icon, onClick }) => (
         left: 0,
         width: '100%',
         height: '100%',
-        background: 'linear-gradient(45deg, rgba(33,150,243,0.1), rgba(33,150,243,0))',
+        background: 'linear-gradient(45deg, rgba(55, 71, 79, 0.1), rgba(255, 64, 129, 0.1))',
         transition: 'opacity 0.3s ease-in-out',
         opacity: 0,
       },
@@ -126,7 +126,7 @@ const Dashboard = () => {
         gutterBottom
         sx={{
           fontWeight: 600,
-          background: 'linear-gradient(45deg, #2196f3, #21cbf3)',
+          background: 'linear-gradient(45deg, #37474F, #FF4081)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           mb: 4

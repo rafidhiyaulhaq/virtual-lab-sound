@@ -51,7 +51,13 @@ const Navigation = () => {
   if (!user) return null;
 
   return (
-    <AppBar position="static">
+    <AppBar 
+      position="static"
+      sx={{
+        background: 'linear-gradient(to right, #37474F, #546E7A)',
+        boxShadow: '0 4px 12px rgba(55, 71, 79, 0.15)'
+      }}
+    >
       <Toolbar>
         <IconButton
           size="large"

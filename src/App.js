@@ -22,18 +22,22 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2196f3',
-      light: '#64b5f6',
-      dark: '#1976d2',
+      main: '#37474F', // Dark Gray
+      light: '#546E7A',
+      dark: '#263238',
     },
     secondary: {
-      main: '#f50057',
-      light: '#ff4081',
-      dark: '#c51162',
+      main: '#FF4081', // Rose
+      light: '#FF80AB',
+      dark: '#F50057',
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
+      default: '#F5F5F5',
+      paper: '#FFFFFF',
+    },
+    text: {
+      primary: '#37474F',
+      secondary: '#546E7A'
     }
   },
   shape: {
@@ -46,7 +50,7 @@ const theme = createTheme({
           transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
           '&:hover': {
             transform: 'translateY(-4px)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+            boxShadow: '0 8px 24px rgba(55, 71, 79, 0.12)'
           }
         }
       }
@@ -59,11 +63,11 @@ const theme = createTheme({
           transition: 'all 0.2s ease-in-out',
           '&:hover': {
             transform: 'translateY(-2px)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            boxShadow: '0 4px 12px rgba(55, 71, 79, 0.15)'
           }
         },
         contained: {
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(55, 71, 79, 0.1)'
         }
       }
     },
@@ -74,10 +78,41 @@ const theme = createTheme({
           transition: 'all 0.3s ease-in-out',
           '&:hover': {
             transform: 'translateY(-8px)',
-            boxShadow: '0 12px 32px rgba(0,0,0,0.15)'
+            boxShadow: '0 12px 32px rgba(55, 71, 79, 0.15)'
           }
         }
       }
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          background: 'linear-gradient(to right, #37474F, #546E7A)',
+          boxShadow: '0 4px 12px rgba(55, 71, 79, 0.15)'
+        }
+      }
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'rgba(55, 71, 79, 0.1)',
+          '& .MuiLinearProgress-bar': {
+            background: 'linear-gradient(45deg, #37474F, #FF4081)'
+          }
+        }
+      }
+    }
+  },
+  typography: {
+    h4: {
+      color: '#37474F',
+      fontWeight: 600
+    },
+    h6: {
+      color: '#37474F',
+      fontWeight: 500
+    },
+    body1: {
+      color: '#546E7A'
     }
   },
   transitions: {
@@ -95,7 +130,16 @@ const theme = createTheme({
       enteringScreen: 225,
       leavingScreen: 195
     }
-  }
+  },
+  shadows: [
+    'none',
+    '0px 2px 4px rgba(55, 71, 79, 0.05)',
+    '0px 4px 8px rgba(55, 71, 79, 0.08)',
+    '0px 8px 16px rgba(55, 71, 79, 0.1)',
+    '0px 12px 24px rgba(55, 71, 79, 0.12)',
+    '0px 16px 32px rgba(55, 71, 79, 0.15)',
+    ...Array(19).fill('none') // Fills remaining shadows
+  ]
 });
 
 function App() {
