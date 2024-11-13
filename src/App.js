@@ -10,6 +10,7 @@ import Register from './components/auth/Register';
 import Dashboard from './components/dashboard/Dashboard';
 import Navigation from './components/common/Navigation';
 import WaveGenerator from './components/experiments/WaveGenerator';
+import SoundAnalysis from './components/experiments/SoundAnalysis';
 
 const theme = createTheme({
   palette: {
@@ -36,6 +37,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/" element={<Dashboard />} />
             <Route path="/wave-generator" element={<WaveGenerator />} />
+            <Route path="/sound-analysis" element={<SoundAnalysis />} />
           </Routes>
         </div>
       </Router>
