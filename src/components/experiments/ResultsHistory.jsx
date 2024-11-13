@@ -40,6 +40,7 @@ const ResultsHistory = () => {
       try {
         if (user) {
           const userResults = await getUserResults(user.uid);
+          console.log("Fetched results:", userResults);
           setResults(userResults);
         }
       } catch (error) {
@@ -48,19 +49,28 @@ const ResultsHistory = () => {
         setLoading(false);
       }
     };
-
+  
     fetchResults();
   }, [user]);
 
   const handleViewDetails = (result) => {
-    console.log("Opening details for:", result);
+    console.log("View Details clicked:", result);
     setSelectedResult(result);
     setDetailOpen(true);
   };
 
   const handleExport = (result) => {
+    console.log("Export clicked:", result);
     try {
-      console.log("Exporting result:", result);
+      if (!result) {
+        console.error('No result to export');
+        setExportSnackbar({
+          open: true,
+          message: 'No data to export',
+          severity: 'error'
+        });
+        return;
+      }
       exportToPDF(result, result.experimentType);
       setExportSnackbar({
         open: true,
@@ -71,7 +81,7 @@ const ResultsHistory = () => {
       console.error('Export error:', error);
       setExportSnackbar({
         open: true,
-        message: 'Error exporting PDF',
+        message: 'Error exporting PDF: ' + error.message,
         severity: 'error'
       });
     }

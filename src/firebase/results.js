@@ -6,7 +6,8 @@ import {
   query, 
   where, 
   getDocs, 
-  serverTimestamp 
+  serverTimestamp,
+  orderBy 
 } from 'firebase/firestore';
 
 export const saveExperimentResult = async (userId, experimentType, data) => {
@@ -25,7 +26,11 @@ export const saveExperimentResult = async (userId, experimentType, data) => {
 
 export const getUserResults = async (userId) => {
   try {
-    const q = query(collection(db, 'results'), where('userId', '==', userId));
+    const q = query(
+      collection(db, 'results'), 
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
