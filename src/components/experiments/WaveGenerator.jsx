@@ -19,12 +19,14 @@ import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
 import { updateProgress } from '../../firebase/progress';
 import { updateAchievements } from '../../firebase/achievements';
+import ExperimentFeedback from '../feedback/ExperimentFeedback';
 
 const WaveGenerator = () => {
   const { user } = useAuth();
   const [waveType, setWaveType] = useState('sine');
   const [frequency, setFrequency] = useState(1);
   const [amplitude, setAmplitude] = useState(50);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -76,6 +78,7 @@ const WaveGenerator = () => {
         message: 'Experiment saved successfully!',
         severity: 'success'
       });
+      setShowFeedback(true);
     } catch (error) {
       console.error('Error saving result:', error);
       setSnackbar({
