@@ -53,12 +53,22 @@ const ResultsHistory = () => {
   }, [user]);
 
   const handleViewDetails = (result) => {
+    console.log('Selected Result:', result);
     setSelectedResult(result);
     setDetailOpen(true);
   };
 
   const handleExport = (result) => {
     try {
+      if (!result) {
+        console.error('No result to export');
+        setExportSnackbar({
+          open: true,
+          message: 'No data to export',
+          severity: 'error'
+        });
+        return;
+      }
       exportToPDF(result, result.experimentType);
       setExportSnackbar({
         open: true,
@@ -126,8 +136,9 @@ const ResultsHistory = () => {
                         variant="outlined"
                         color="primary"
                         onClick={() => handleExport(result)}
+                        sx={{ mr: 1 }}
                       >
-                        Export PDF
+                        View Details
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -143,6 +154,7 @@ const ResultsHistory = () => {
         onClose={() => setDetailOpen(false)}
         maxWidth="md"
         fullWidth
+        sx={{ zIndex: 1500 }}
       >
         <DialogTitle>
           Experiment Details
