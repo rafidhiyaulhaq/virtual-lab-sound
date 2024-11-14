@@ -64,70 +64,83 @@ const SoundAnalysis = () => {
  ];
 
  const setupAudioContext = useCallback(async () => {
-   try {
-     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-     const analyser = audioContext.createAnalyser();
-     const source = audioContext.createMediaStreamSource(stream);
-     
-     analyser.fftSize = 2048;
-     analyser.smoothingTimeConstant = 0.8;
-     source.connect(analyser);
-     analyserRef.current = analyser;
-     
-     const mediaRecorder = new MediaRecorder(stream);
-     mediaRecorderRef.current = mediaRecorder;
-     
-     mediaRecorder.ondataavailable = (e) => {
-       if (e.data.size > 0) {
-         setAudioData(prevData => [...prevData, e.data]);
-       }
-     };
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(stream);
+    
+    // Optimize analyzer settings
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.85;
+    analyser.minDecibels = -90;
+    analyser.maxDecibels = -10;
+    
+    source.connect(analyser);
+    analyserRef.current = analyser;
+    
+    const mediaRecorder = new MediaRecorder(stream, {
+      mimeType: 'audio/webm;codecs=opus'
+    });
+    mediaRecorderRef.current = mediaRecorder;
+    
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        setAudioData(prevData => [...prevData, e.data]);
+      }
+    };
 
-     setVisualizationData(new Uint8Array(analyser.frequencyBinCount));
-   } catch (err) {
-     setError('Error accessing microphone: ' + err.message);
-   }
- }, []);
+    setVisualizationData(new Uint8Array(analyser.frequencyBinCount));
+  } catch (err) {
+    setError('Error accessing microphone: ' + err.message);
+  }
+}, []);
 
  const drawVisualization = useCallback(() => {
-   if (!canvasRef.current || !analyserRef.current) return;
+  if (!canvasRef.current || !analyserRef.current) return;
 
-   const canvas = canvasRef.current;
-   const canvasCtx = canvas.getContext('2d');
-   const analyser = analyserRef.current;
-   const bufferLength = analyser.frequencyBinCount;
-   const dataArray = new Uint8Array(bufferLength);
+  const canvas = canvasRef.current;
+  const canvasCtx = canvas.getContext('2d');
+  const analyser = analyserRef.current;
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
 
-   const draw = () => {
-     animationFrameRef.current = requestAnimationFrame(draw);
-     analyser.getByteFrequencyData(dataArray);
+  const draw = () => {
+    animationFrameRef.current = requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(dataArray);
 
-     canvasCtx.fillStyle = 'rgb(255, 255, 255)';
-     canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas with animation
+    canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-     const barWidth = (canvas.width / bufferLength) * 2.5;
-     let barHeight;
-     let x = 0;
+    // Adjust bar width and spacing
+    const barWidth = (canvas.width / (bufferLength * 0.5));
+    const barSpacing = 1;
+    let x = 0;
 
-     for (let i = 0; i < bufferLength; i++) {
-       barHeight = (dataArray[i] / 255) * canvas.height;
+    for (let i = 0; i < bufferLength; i++) {
+      const barHeight = (dataArray[i] / 255) * canvas.height;
 
-       const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
-       gradient.addColorStop(0, '#FF4081');
-       gradient.addColorStop(1, '#37474F');
-       
-       canvasCtx.fillStyle = gradient;
-       canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+      // Create gradient
+      const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+      gradient.addColorStop(0, '#FF4081');
+      gradient.addColorStop(1, '#37474F');
+      
+      canvasCtx.fillStyle = gradient;
+      canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - barSpacing, barHeight);
 
-       x += barWidth + 1;
-     }
+      x += barWidth;
+    }
+  };
 
-     setVisualizationData(dataArray);
-   };
-
-   draw();
- }, []);
+  draw();
+}, []);
 
  useEffect(() => {
    setupAudioContext();
@@ -144,12 +157,17 @@ const SoundAnalysis = () => {
  }, [setupAudioContext, startTutorial, tutorialSteps]);
 
  useEffect(() => {
-   const canvas = canvasRef.current;
-   if (canvas) {
-     canvas.width = canvas.offsetWidth;
-     canvas.height = canvas.offsetHeight;
-   }
- }, []);
+  const canvas = canvasRef.current;
+  if (canvas) {
+    // Fix canvas resolution
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+  }
+}, []);
 
  const startRecording = () => {
    setIsRecording(true);
