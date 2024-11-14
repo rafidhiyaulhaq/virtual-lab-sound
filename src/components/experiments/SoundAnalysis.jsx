@@ -102,7 +102,7 @@ const SoundAnalysis = () => {
 }, []);
 
 const drawVisualization = useCallback(() => {
-  if (!canvasRef.current || !analyserRef.current) return;
+  if (!canvasRef.current || !analyserRef.current || !isRecording) return;
 
   const canvas = canvasRef.current;
   const canvasCtx = canvas.getContext('2d');
@@ -116,14 +116,19 @@ const drawVisualization = useCallback(() => {
     animationFrameRef.current = requestAnimationFrame(draw);
     analyser.getByteFrequencyData(dataArray);
 
-    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const barWidth = (canvas.width / bufferLength) * 2;
-    let x = 0;
+    // Background
+    canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Calculate bar dimensions
+    const barWidth = Math.max(1, (canvas.width / bufferLength) * 2.5);
+    const heightScale = canvas.height / 256;
+    
+    let x = 0;
     for (let i = 0; i < bufferLength; i++) {
-      const barHeight = (dataArray[i] / 255) * canvas.height;
+      const barHeight = dataArray[i] * heightScale;
       
+      // Create gradient
       const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
       gradient.addColorStop(0, '#FF4081');
       gradient.addColorStop(1, '#37474F');
