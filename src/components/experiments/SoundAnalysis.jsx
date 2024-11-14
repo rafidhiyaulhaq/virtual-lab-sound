@@ -62,25 +62,25 @@ const SoundAnalysis = () => {
   }
 ], []); 
 
- const setupAudioContext = useCallback(async () => {
+const setupAudioContext = useCallback(async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ 
       audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false
       }
     });
     
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    await audioContext.resume(); // Add this line
+    await audioContext.resume();
     
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
     
-    analyser.fftSize = 256; // Change to smaller value
-    analyser.smoothingTimeConstant = 0.5;
-    analyser.minDecibels = -90;
+    analyser.fftSize = 128; // Smaller for better performance
+    analyser.smoothingTimeConstant = 0.6;
+    analyser.minDecibels = -70;
     analyser.maxDecibels = -10;
     
     source.connect(analyser);
@@ -110,30 +110,28 @@ const drawVisualization = useCallback(() => {
 
   const draw = () => {
     if (!isRecording) return;
-    
+
     animationFrameRef.current = requestAnimationFrame(draw);
     analyser.getByteFrequencyData(dataArray);
 
-    // Background
-    canvasCtx.fillStyle = 'rgb(255, 255, 255)';
-    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Calculate bar dimensions
-    const barWidth = Math.max(1, (canvas.width / bufferLength) * 2.5);
-    const heightScale = canvas.height / 256;
-    
+    // Calculate dimensions
+    const barWidth = (canvas.width / bufferLength);
+    const heightScale = canvas.height / 128;
+
     let x = 0;
     for (let i = 0; i < bufferLength; i++) {
       const barHeight = dataArray[i] * heightScale;
-      
+
       // Create gradient
-      const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+      const gradient = canvasCtx.createLinearGradient(x, canvas.height - barHeight, x, canvas.height);
       gradient.addColorStop(0, '#FF4081');
       gradient.addColorStop(1, '#37474F');
-      
+
       canvasCtx.fillStyle = gradient;
       canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
-      
+
       x += barWidth;
     }
   };
