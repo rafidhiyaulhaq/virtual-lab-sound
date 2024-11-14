@@ -112,28 +112,33 @@ const drawVisualization = useCallback(() => {
     if (!isRecording) return;
 
     animationFrameRef.current = requestAnimationFrame(draw);
-    analyser.getByteFrequencyData(dataArray);
+    analyser.getByteTimeDomainData(dataArray);
 
-    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    canvasCtx.fillStyle = 'white';
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Calculate dimensions
-    const barWidth = (canvas.width / bufferLength);
-    const heightScale = canvas.height / 128;
+    canvasCtx.lineWidth = 2;
+    canvasCtx.strokeStyle = '#FF4081';
+    canvasCtx.beginPath();
 
+    const sliceWidth = canvas.width / bufferLength;
     let x = 0;
+
     for (let i = 0; i < bufferLength; i++) {
-      const barHeight = dataArray[i] * heightScale;
+      const v = dataArray[i] / 128.0;
+      const y = v * canvas.height / 2;
 
-      // Create gradient
-      const gradient = canvasCtx.createLinearGradient(x, canvas.height - barHeight, x, canvas.height);
-      gradient.addColorStop(0, '#FF4081');
-      gradient.addColorStop(1, '#37474F');
+      if (i === 0) {
+        canvasCtx.moveTo(x, y);
+      } else {
+        canvasCtx.lineTo(x, y);
+      }
 
-      canvasCtx.fillStyle = gradient;
-      canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
-
-      x += barWidth;
+      x += sliceWidth;
     }
+
+    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+    canvasCtx.stroke();
   };
 
   draw();
