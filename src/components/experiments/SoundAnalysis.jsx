@@ -177,7 +177,7 @@ const startRecording = async () => {
     setIsRecording(true);
     setAudioData([]);
     mediaRecorderRef.current?.start(100);
-    draw(); // Call draw directly
+    drawVisualization(); // Changed from draw() to drawVisualization()
   } catch (error) {
     setError('Failed to start recording: ' + error.message);
   }
