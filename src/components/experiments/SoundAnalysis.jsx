@@ -26,6 +26,8 @@ import { updateAchievements } from '../../firebase/achievements';
 import ExperimentFeedback from '../feedback/ExperimentFeedback';
 import { useTutorial } from '../../components/tutorial/TutorialProvider';
 import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 const SoundAnalysis = () => {
  const { user } = useAuth();
@@ -34,7 +36,6 @@ const SoundAnalysis = () => {
  const [error, setError] = useState('');
  const [showFeedback, setShowFeedback] = useState(false);
  const [showGuide, setShowGuide] = useState(false);
- const [visualizationData, setVisualizationData] = useState(new Uint8Array(0));
  const { startTutorial } = useTutorial();
  const [snackbar, setSnackbar] = useState({
    open: false,
@@ -47,21 +48,21 @@ const SoundAnalysis = () => {
  const mediaRecorderRef = useRef(null);
  const animationFrameRef = useRef(null);
 
- const tutorialSteps = [
-   {
-     target: '.record-button',
-     content: 'Click to start recording audio for analysis',
-     disableBeacon: true
-   },
-   {
-     target: '.visualization-canvas',
-     content: 'Watch the frequency spectrum in real-time'
-   },
-   {
-     target: '.download-button',
-     content: 'Download your recorded audio for further analysis'
-   }
- ];
+ const tutorialSteps = useMemo(() => [
+  {
+    target: '.record-button',
+    content: 'Click to start recording audio for analysis',
+    disableBeacon: true
+  },
+  {
+    target: '.visualization-canvas',
+    content: 'Watch the frequency spectrum in real-time'
+  },
+  {
+    target: '.download-button',
+    content: 'Download your recorded audio for further analysis'
+  }
+], []); 
 
  const setupAudioContext = useCallback(async () => {
   try {
