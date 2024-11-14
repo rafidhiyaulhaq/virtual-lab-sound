@@ -13,7 +13,6 @@ A web-based virtual laboratory application for physics learning focused on sound
 
 2. **Sound Analysis** 
   - Record audio input
-  - Frequency spectrum visualization
   - Download recordings
   - Save analysis results 
 
@@ -50,6 +49,9 @@ A web-based virtual laboratory application for physics learning focused on sound
 - Cloud Firestore Database
 - Firebase Analytics
 
+## License
+MIT License
+
 ### Key Dependencies
 ```json
 {
@@ -65,5 +67,4 @@ A web-based virtual laboratory application for physics learning focused on sound
  }
 }
 
-## License
-MIT License
+
