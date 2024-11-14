@@ -90,6 +90,7 @@ const SoundAnalysis = () => {
     });
     mediaRecorderRef.current = mediaRecorder;
     
+    mediaRecorder.start(100);
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
         setAudioData(prevData => [...prevData, e.data]);
@@ -102,7 +103,7 @@ const SoundAnalysis = () => {
   }
 }, []);
 
- const drawVisualization = useCallback(() => {
+const drawVisualization = useCallback(() => {
   if (!canvasRef.current || !analyserRef.current) return;
 
   const canvas = canvasRef.current;
@@ -112,35 +113,32 @@ const SoundAnalysis = () => {
   const dataArray = new Uint8Array(bufferLength);
 
   const draw = () => {
+    if (!isRecording) return;
+    
     animationFrameRef.current = requestAnimationFrame(draw);
     analyser.getByteFrequencyData(dataArray);
 
-    // Clear canvas with animation
-    canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Adjust bar width and spacing
-    const barWidth = (canvas.width / (bufferLength * 0.5));
-    const barSpacing = 1;
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const barWidth = (canvas.width / bufferLength) * 2;
     let x = 0;
 
     for (let i = 0; i < bufferLength; i++) {
       const barHeight = (dataArray[i] / 255) * canvas.height;
-
-      // Create gradient
+      
       const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
       gradient.addColorStop(0, '#FF4081');
       gradient.addColorStop(1, '#37474F');
       
       canvasCtx.fillStyle = gradient;
-      canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - barSpacing, barHeight);
-
+      canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+      
       x += barWidth;
     }
   };
 
   draw();
-}, []);
+}, [isRecording]);
 
  useEffect(() => {
    setupAudioContext();
@@ -169,12 +167,19 @@ const SoundAnalysis = () => {
   }
 }, []);
 
- const startRecording = () => {
-   setIsRecording(true);
-   setAudioData([]);
-   mediaRecorderRef.current?.start();
-   drawVisualization();
- };
+const startRecording = async () => {
+  try {
+    if (!analyserRef.current) {
+      await setupAudioContext();
+    }
+    setIsRecording(true);
+    setAudioData([]);
+    mediaRecorderRef.current?.start(100);
+    requestAnimationFrame(drawVisualization);
+  } catch (error) {
+    setError('Failed to start recording: ' + error.message);
+  }
+};
 
  const stopRecording = () => {
    setIsRecording(false);
