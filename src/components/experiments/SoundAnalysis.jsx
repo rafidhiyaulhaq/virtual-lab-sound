@@ -72,30 +72,29 @@ const SoundAnalysis = () => {
         autoGainControl: true
       }
     });
+    
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    await audioContext.resume(); // Add this line
+    
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
     
-    analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.85;
+    analyser.fftSize = 256; // Change to smaller value
+    analyser.smoothingTimeConstant = 0.5;
     analyser.minDecibels = -90;
     analyser.maxDecibels = -10;
     
     source.connect(analyser);
     analyserRef.current = analyser;
     
-    const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'audio/webm;codecs=opus'
-    });
-    
+    const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
+    
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
         setAudioData(prevData => [...prevData, e.data]);
       }
     };
-
-    setVisualizationData(new Uint8Array(analyser.frequencyBinCount));
   } catch (err) {
     setError('Error accessing microphone: ' + err.message);
   }
@@ -178,7 +177,7 @@ const startRecording = async () => {
     setIsRecording(true);
     setAudioData([]);
     mediaRecorderRef.current?.start(100);
-    requestAnimationFrame(drawVisualization);
+    draw(); // Call draw directly
   } catch (error) {
     setError('Failed to start recording: ' + error.message);
   }
