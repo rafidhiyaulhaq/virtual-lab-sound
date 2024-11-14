@@ -1,5 +1,6 @@
 // src/components/experiments/SoundAnalysis.jsx
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
  Container,
  Paper,
@@ -26,8 +27,6 @@ import { updateAchievements } from '../../firebase/achievements';
 import ExperimentFeedback from '../feedback/ExperimentFeedback';
 import { useTutorial } from '../../components/tutorial/TutorialProvider';
 import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useMemo } from 'react';
 
 const SoundAnalysis = () => {
  const { user } = useAuth();
