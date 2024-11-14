@@ -76,7 +76,6 @@ const SoundAnalysis = () => {
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
     
-    // Optimize analyzer settings
     analyser.fftSize = 2048;
     analyser.smoothingTimeConstant = 0.85;
     analyser.minDecibels = -90;
@@ -88,9 +87,8 @@ const SoundAnalysis = () => {
     const mediaRecorder = new MediaRecorder(stream, {
       mimeType: 'audio/webm;codecs=opus'
     });
-    mediaRecorderRef.current = mediaRecorder;
     
-    mediaRecorder.start(100);
+    mediaRecorderRef.current = mediaRecorder;
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
         setAudioData(prevData => [...prevData, e.data]);
