@@ -1,6 +1,5 @@
 // src/components/experiments/SoundAnalysis.jsx
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useMemo } from 'react';
 import {
  Container,
  Paper,
