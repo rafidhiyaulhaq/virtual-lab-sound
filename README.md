@@ -43,6 +43,9 @@ A web-based virtual laboratory application for physics learning focused on sound
 - Material UI 
 - D3.js/HTML Canvas for visualizations
 - Web Audio API
+- Hosted on GitHub Pages  
+- Visit: https://rafidhiyaulhaq.github.io/virtual-lab-sound
+- Static deployment from GitHub repository
 
 ### Backend  
 - Firebase Authentication
