@@ -1,20 +1,19 @@
 // src/components/experiments/WaveGenerator.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
- Container, 
- Paper, 
- Typography, 
- Slider, 
- Select, 
- MenuItem, 
- FormControl,
- InputLabel,
- Grid,
- Button,
- Alert,
- Snackbar,
- Box
+  Container, 
+  Paper, 
+  Typography, 
+  Slider, 
+  Select, 
+  MenuItem, 
+  FormControl,
+  InputLabel,
+  Grid,
+  Button,
+  Alert,
+  Snackbar,
+  Box
 } from '@mui/material';
 import { Help, Science, PlayArrow, Save } from '@mui/icons-material';
 import * as d3 from 'd3';
@@ -27,21 +26,19 @@ import { useTutorial } from '../../components/tutorial/TutorialProvider';
 import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
 
 const WaveGenerator = () => {
- const navigate = useNavigate();
- const { user } = useAuth();
- const [waveType, setWaveType] = useState('sine');
- const [frequency, setFrequency] = useState(1);
- const [amplitude, setAmplitude] = useState(50);
- const [showFeedback, setShowFeedback] = useState(false);
- const [showGuide, setShowGuide] = useState(false);
- const { startTutorial } = useTutorial();
- const [snackbar, setSnackbar] = useState({
-   open: false,
-   message: '',
-   severity: 'success'
- });
-
- const svgRef = useRef();
+  const { user } = useAuth();
+  const [waveType, setWaveType] = useState('sine');
+  const [frequency, setFrequency] = useState(1);
+  const [amplitude, setAmplitude] = useState(50);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const { startTutorial } = useTutorial();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const svgRef = useRef();
 
   const generateWaveData = useCallback(() => {
     const points = [];
@@ -104,7 +101,6 @@ const WaveGenerator = () => {
         severity: 'success'
       });
       setShowFeedback(true);
-      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Error saving result:', error);
       setSnackbar({
@@ -114,7 +110,7 @@ const WaveGenerator = () => {
       });
     }
   };
-  
+
   useEffect(() => {
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const width = 800 - margin.left - margin.right;
