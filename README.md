@@ -49,6 +49,28 @@ A web-based virtual laboratory application for physics learning focused on sound
 - Cloud Firestore Database
 - Firebase Analytics
 
+## Firebase Integration
+- **Authentication**
+  - Email/password authentication
+  - User management & sessions
+  - Secure authentication flow
+
+- **Cloud Firestore**
+  - Collections:
+    - achievements (track user achievements)
+    - feedback (store experiment feedback)
+    - progress (track experiment progress)
+    - results (store experiment results)
+    - users (user profiles & metadata)
+  - Real-time data synchronization
+  - Secure data access rules
+
+- **Serverless Architecture**
+  - Fully managed backend services
+  - Auto-scaling infrastructure
+  - High availability
+  - Pay-as-you-go pricing
+
 ## License
 MIT License
 
