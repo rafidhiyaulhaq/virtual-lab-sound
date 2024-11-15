@@ -148,10 +148,11 @@ function App() {
       <TutorialProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Router> 
+          <HashRouter> 
             <div>
               <Navigation />
               <Routes>
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route 
@@ -205,7 +206,7 @@ function App() {
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>
-          </Router>
+          </HashRouter>
         </ThemeProvider>
       </TutorialProvider>
     </AuthProvider>
