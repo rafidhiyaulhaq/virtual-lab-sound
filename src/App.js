@@ -148,7 +148,7 @@ function App() {
       <TutorialProvider>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Router>
+          <Router basename="/virtual-lab-sound"> 
             <div>
               <Navigation />
               <Routes>
