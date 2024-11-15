@@ -1,7 +1,7 @@
 {
   "name": "virtual-lab-sound",
-  "version": "0.1.0",
   "homepage": "https://rafidhiyaulhaq.github.io/virtual-lab-sound",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -51,8 +51,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

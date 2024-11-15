@@ -9,7 +9,7 @@ import {
   Typography,
   Box,
   Alert,
-  Paper
+  Link
 } from '@mui/material';
 
 const Register = () => {
@@ -35,129 +35,63 @@ const Register = () => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper
-          elevation={0}
-          sx={{
-            p: 4,
-            width: '100%',
-            borderRadius: 2,
-            backgroundColor: 'transparent'
-          }}
-        >
-          <Typography 
-            component="h1" 
-            variant="h4" 
-            align="center"
-            sx={{ 
-              mb: 3,
-              color: '#37474F',
-              fontWeight: 500
-            }}
+      <Box sx={{
+        marginTop: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        <Typography component="h1" variant="h5">
+          Sign up
+        </Typography>
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
-            Sign up
-          </Typography>
-
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-          <Box component="form" onSubmit={handleSubmit}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: 1
-                }
-              }}
-            />
-
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: 1
-                }
-              }}
-            />
-
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: 1
-                },
-                mb: 3
-              }}
-            />
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{
-                mt: 2,
-                mb: 2,
-                py: 1.5,
-                backgroundColor: '#37474F',
-                '&:hover': {
-                  backgroundColor: '#455A64'
-                },
-                borderRadius: 1
-              }}
-            >
-              Sign Up
-            </Button>
-
-            <Box 
-              sx={{ 
-                textAlign: 'center', 
-                mt: 2,
-                cursor: 'pointer',
-                color: '#37474F',
-                '&:hover': {
-                  textDecoration: 'underline'
-                }
-              }}
-              onClick={() => navigate('/login')}
-            >
-              Already have an account? Sign In
-            </Box>
-          </Box>
-        </Paper>
+            Sign Up
+          </Button>
+          <Link href="/login" variant="body2">
+            {"Already have an account? Sign In"}
+          </Link>
+        </Box>
       </Box>
     </Container>
   );
