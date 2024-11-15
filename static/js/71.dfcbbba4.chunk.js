@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkvirtual_lab_sound=self.webpackChunkvirtual_lab_sound||[]).push([[71],{6071:(e,u,a)=>{a.d(u,{createArchitectureServices:()=>r.S});var r=a(6677);a(6660)}}]);
