@@ -9,7 +9,6 @@ import {
   Typography,
   Box,
   Alert,
-  Link,
   Paper
 } from '@mui/material';
 
@@ -121,20 +120,19 @@ const Login = () => {
               Sign In
             </Button>
 
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Link 
-                href="/register" 
-                variant="body2"
-                sx={{
-                  color: '#37474F',
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline'
-                  }
-                }}
-              >
-                Don't have an account? Sign Up
-              </Link>
+            <Box 
+              sx={{ 
+                textAlign: 'center', 
+                mt: 2,
+                cursor: 'pointer',
+                color: '#37474F',
+                '&:hover': {
+                  textDecoration: 'underline'
+                }
+              }}
+              onClick={() => navigate('/register')}
+            >
+              Don't have an account? Sign Up
             </Box>
           </Box>
         </Paper>

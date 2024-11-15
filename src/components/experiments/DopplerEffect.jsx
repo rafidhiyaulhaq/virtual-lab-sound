@@ -1,19 +1,19 @@
-// src/components/experiments/DopplerEffect.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Container,
-  Paper,
-  Typography,
-  Slider,
-  Grid,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
-  Alert,
-  Snackbar
+ Container,
+ Paper,
+ Typography,
+ Slider,
+ Grid,
+ Button,
+ FormControl,
+ InputLabel,
+ Select,
+ MenuItem,
+ Box,
+ Alert,
+ Snackbar
 } from '@mui/material';
 import { Help } from '@mui/icons-material';
 import * as d3 from 'd3';
@@ -26,21 +26,22 @@ import { useTutorial } from '../../components/tutorial/TutorialProvider';
 import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
 
 const DopplerEffect = () => {
-  const { user } = useAuth();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [sourceSpeed, setSourceSpeed] = useState(30);
-  const [frequency, setFrequency] = useState(440);
-  const [observerPosition, setObserverPosition] = useState(50);
-  const [soundType, setSoundType] = useState('sine');
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [showGuide, setShowGuide] = useState(false);
-  const { startTutorial } = useTutorial();
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
-  
+ const navigate = useNavigate();
+ const { user } = useAuth();
+ const [isPlaying, setIsPlaying] = useState(false);
+ const [sourceSpeed, setSourceSpeed] = useState(30);
+ const [frequency, setFrequency] = useState(440);
+ const [observerPosition, setObserverPosition] = useState(50);
+ const [soundType, setSoundType] = useState('sine');
+ const [showFeedback, setShowFeedback] = useState(false);
+ const [showGuide, setShowGuide] = useState(false);
+ const { startTutorial } = useTutorial();
+ const [snackbar, setSnackbar] = useState({
+   open: false,
+   message: '',
+   severity: 'success'
+ });
+ 
   const audioContextRef = useRef();
   const oscillatorRef = useRef();
   const animationFrameRef = useRef();
@@ -225,6 +226,7 @@ const DopplerEffect = () => {
         severity: 'success'
       });
       setShowFeedback(true);
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('Error saving result:', error);
       setSnackbar({

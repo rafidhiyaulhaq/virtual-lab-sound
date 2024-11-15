@@ -1,7 +1,7 @@
 {
   "name": "virtual-lab-sound",
   "version": "0.1.0",
-  "homepage": "https://rafidhiyaulhaq.github.io/virtual-lab-sound/#",
+  "homepage": "https://rafidhiyaulhaq.github.io/virtual-lab-sound",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",

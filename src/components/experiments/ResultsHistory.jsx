@@ -1,121 +1,122 @@
-// src/components/dashboard/ResultsHistory.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Paper,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Box,
-  CircularProgress,
-  Alert,
-  Snackbar,
-  IconButton,
-  Dialog as ConfirmDialog,
-  DialogContentText
+ Paper,
+ Typography,
+ Table,
+ TableBody,
+ TableCell,
+ TableContainer,
+ TableHead,
+ TableRow,
+ Button,
+ Dialog,
+ DialogTitle,
+ DialogContent,
+ DialogActions,
+ Box,
+ CircularProgress,
+ Alert,
+ Snackbar,
+ IconButton,
+ DialogContentText
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getUserResults, deleteExperiment } from '../../firebase/results';
 import { useAuth } from '../../context/AuthContext';
+import { exportToPDF } from '../../utils/pdfExport';
 
 const ResultsHistory = () => {
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [deleteConfirm, setDeleteConfirm] = useState({
-    open: false,
-    experimentId: null
-  });
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success'
-  });
-  const { user } = useAuth();
+ const navigate = useNavigate();
+ const [results, setResults] = useState([]);
+ const [loading, setLoading] = useState(true);
+ const [deleteConfirm, setDeleteConfirm] = useState({
+   open: false,
+   experimentId: null
+ });
+ const [snackbar, setSnackbar] = useState({
+   open: false,
+   message: '',
+   severity: 'success'
+ });
+ const { user } = useAuth();
 
-  const fetchResults = async () => {
-    try {
-      if (user) {
-        const userResults = await getUserResults(user.uid);
-        setResults(userResults);
-      }
-    } catch (error) {
-      console.error("Error fetching results:", error);
-      setSnackbar({
-        open: true,
-        message: 'Error fetching results',
-        severity: 'error'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchResults = async () => {
+   try {
+     if (user) {
+       const userResults = await getUserResults(user.uid);
+       setResults(userResults);
+     }
+   } catch (error) {
+     console.error("Error fetching results:", error);
+     setSnackbar({
+       open: true,
+       message: 'Error fetching results',
+       severity: 'error'
+     });
+   } finally {
+     setLoading(false);
+   }
+ };
 
-  useEffect(() => {
-    fetchResults();
-  }, [user]);
+ useEffect(() => {
+   fetchResults();
+ }, [user]);
 
-  const handleExport = (result) => {
-    try {
-      if (!result) {
-        console.error('No result to export');
-        setSnackbar({
-          open: true,
-          message: 'No data to export',
-          severity: 'error'
-        });
-        return;
-      }
-      exportToPDF(result, result.experimentType);
-      setSnackbar({
-        open: true,
-        message: 'PDF exported successfully!',
-        severity: 'success'
-      });
-    } catch (error) {
-      console.error('Export error:', error);
-      setSnackbar({
-        open: true,
-        message: 'Error exporting PDF: ' + error.message,
-        severity: 'error'
-      });
-    }
-  };
-  
-  const handleDelete = async (experimentId) => {
-    try {
-      await deleteExperiment(experimentId);
-      await fetchResults(); // Refresh data
-      setSnackbar({
-        open: true,
-        message: 'Experiment deleted successfully',
-        severity: 'success'
-      });
-    } catch (error) {
-      console.error('Error deleting experiment:', error);
-      setSnackbar({
-        open: true,
-        message: 'Error deleting experiment',
-        severity: 'error'
-      });
-    }
-    setDeleteConfirm({ open: false, experimentId: null });
-  };
+ const handleExport = (result) => {
+   try {
+     if (!result) {
+       setSnackbar({
+         open: true,
+         message: 'No data to export',
+         severity: 'error'
+       });
+       return;
+     }
+     exportToPDF(result, result.experimentType);
+     setSnackbar({
+       open: true,
+       message: 'PDF exported successfully!',
+       severity: 'success'
+     });
+   } catch (error) {
+     console.error('Export error:', error);
+     setSnackbar({
+       open: true,
+       message: 'Error exporting PDF: ' + error.message,
+       severity: 'error'
+     });
+   }
+ };
+ 
+ const handleDelete = async (experimentId) => {
+   try {
+     await deleteExperiment(experimentId);
+     await fetchResults();
+     setSnackbar({
+       open: true,
+       message: 'Experiment deleted successfully',
+       severity: 'success'
+     });
+     navigate('/dashboard', { replace: true });
+   } catch (error) {
+     console.error('Error deleting experiment:', error);
+     setSnackbar({
+       open: true,
+       message: 'Error deleting experiment',
+       severity: 'error'
+     });
+   }
+   setDeleteConfirm({ open: false, experimentId: null });
+ };
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', m: 3 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+ if (loading) {
+   return (
+     <Box sx={{ display: 'flex', justifyContent: 'center', m: 3 }}>
+       <CircularProgress />
+     </Box>
+   );
+ }
 
   return (
     <>
