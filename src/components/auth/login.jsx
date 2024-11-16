@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../firebase/auth';
 import {
   Button,
   TextField,
@@ -9,13 +10,12 @@ import {
   Alert,
   Paper
 } from '@mui/material';
-import { loginUser } from '../../firebase/auth';
 
 const Login = () => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
