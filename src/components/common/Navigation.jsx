@@ -1,20 +1,21 @@
-// src/components/common/Navigation.jsx
 import React from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Button, 
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
   Box,
   IconButton,
   Menu,
   MenuItem
 } from '@mui/material';
-import { 
+import {
   AccountCircle,
   Menu as MenuIcon,
   Description as DocIcon,
-  Home as HomeIcon
+  Home as HomeIcon,
+  Login as LoginIcon,
+  PersonAdd as RegisterIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -48,10 +49,8 @@ const Navigation = () => {
     handleClose();
   };
 
-  if (!user) return null;
-
   return (
-    <AppBar 
+    <AppBar
       position="static"
       sx={{
         background: 'linear-gradient(to right, #37474F, #546E7A)',
@@ -72,47 +71,79 @@ const Navigation = () => {
           Virtual Lab Sound
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Button 
-            color="inherit" 
-            onClick={() => navigate('/dashboard')}
-          >
-            Dashboard
-          </Button>
-          <Button 
-            color="inherit" 
-            onClick={() => navigate('/documentation')}
-            startIcon={<DocIcon />}
-          >
-            Documentation
-          </Button>
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={handleProfile}>Profile</MenuItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
+          {user ? (
+            // Menu untuk user yang sudah login
+            <>
+              <Button
+                color="inherit"
+                onClick={() => navigate('/dashboard')}
+              >
+                Dashboard
+              </Button>
+              <Button
+                color="inherit"
+                onClick={() => navigate('/documentation')}
+                startIcon={<DocIcon />}
+              >
+                Documentation
+              </Button>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleProfile}>Profile</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            // Menu untuk user yang belum login
+            <>
+              <Button
+                color="inherit"
+                onClick={() => navigate('/login')}
+                startIcon={<LoginIcon />}
+                sx={{ mr: 1 }}
+              >
+                Login
+              </Button>
+              <Button
+                color="inherit"
+                onClick={() => navigate('/register')}
+                startIcon={<RegisterIcon />}
+                variant="outlined"
+                sx={{
+                  borderColor: 'white',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }}
+              >
+                Register
+              </Button>
+            </>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
