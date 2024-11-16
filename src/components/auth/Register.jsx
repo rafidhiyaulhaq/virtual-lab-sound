@@ -33,6 +33,10 @@ const Register = () => {
     }
   };
 
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -109,9 +113,13 @@ const Register = () => {
               Create Account
             </Button>
             <Box sx={{ textAlign: 'center' }}>
-              <Link href="#/login" variant="body2">
+              <Button
+                onClick={handleLoginClick}
+                variant="text"
+                sx={{ textTransform: 'none' }}
+              >
                 Already have an account? Sign in
-              </Link>
+              </Button>
             </Box>
           </Box>
         </Paper>

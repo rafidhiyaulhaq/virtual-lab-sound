@@ -49,6 +49,14 @@ const Navigation = () => {
     handleClose();
   };
 
+  const handleRegister = () => {
+    navigate('/register');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <AppBar
       position="static"
@@ -121,7 +129,7 @@ const Navigation = () => {
             <>
               <Button
                 color="inherit"
-                onClick={() => navigate('/login')}
+                onClick={handleLogin}
                 startIcon={<LoginIcon />}
                 sx={{ mr: 1 }}
               >
@@ -129,7 +137,7 @@ const Navigation = () => {
               </Button>
               <Button
                 color="inherit"
-                onClick={() => navigate('/register')}
+                onClick={handleRegister}
                 startIcon={<RegisterIcon />}
                 variant="outlined"
                 sx={{
