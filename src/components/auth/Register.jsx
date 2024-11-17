@@ -8,8 +8,9 @@ import {
   Typography,
   Box,
   Alert,
-  Link,
-  Paper
+  Paper,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 
 const Register = () => {
@@ -18,6 +19,8 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,43 +36,72 @@ const Register = () => {
     }
   };
 
-  const handleLoginClick = () => {
+  const handleSignIn = () => {
     navigate('/login');
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container 
+      component="main" 
+      maxWidth="xs"
+      sx={{
+        px: isMobile ? 2 : 3,
+      }}
+    >
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: isMobile ? 4 : 8,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          mb: 4, // Add bottom margin for mobile scrolling
         }}
       >
         <Paper
           elevation={3}
           sx={{
-            padding: 4,
+            padding: isMobile ? 2 : 4,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             width: '100%',
+            borderRadius: theme.shape.borderRadius,
           }}
         >
-          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+          <Typography 
+            component="h1" 
+            variant={isMobile ? "h6" : "h5"} 
+            sx={{ 
+              mb: 3,
+              fontWeight: 600,
+              textAlign: 'center'
+            }}
+          >
             Create Account
           </Typography>
           
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                width: '100%', 
+                mb: 2,
+                fontSize: isMobile ? '0.875rem' : '1rem'
+              }}
+            >
               {error}
             </Alert>
           )}
           
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit} 
+            sx={{ 
+              width: '100%',
+              '& .MuiTextField-root': { my: 1 }
+            }}
+          >
             <TextField
-              margin="normal"
               required
               fullWidth
               id="email"
@@ -79,9 +111,10 @@ const Register = () => {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              size={isMobile ? "small" : "medium"}
+              sx={{ mb: isMobile ? 1 : 2 }}
             />
             <TextField
-              margin="normal"
               required
               fullWidth
               name="password"
@@ -91,9 +124,10 @@ const Register = () => {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              size={isMobile ? "small" : "medium"}
+              sx={{ mb: isMobile ? 1 : 2 }}
             />
             <TextField
-              margin="normal"
               required
               fullWidth
               name="confirmPassword"
@@ -103,20 +137,34 @@ const Register = () => {
               autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              size={isMobile ? "small" : "medium"}
+              sx={{ mb: isMobile ? 2 : 3 }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ 
+                mt: 2, 
+                mb: 2,
+                py: isMobile ? 1 : 1.5,
+                fontSize: isMobile ? '0.875rem' : '1rem'
+              }}
+              size={isMobile ? "medium" : "large"}
             >
               Create Account
             </Button>
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ 
+              textAlign: 'center',
+              mt: isMobile ? 1 : 2 
+            }}>
               <Button
-                onClick={handleLoginClick}
+                onClick={handleSignIn}
                 variant="text"
-                sx={{ textTransform: 'none' }}
+                sx={{ 
+                  textTransform: 'none',
+                  fontSize: isMobile ? '0.875rem' : '1rem'
+                }}
               >
                 Already have an account? Sign in
               </Button>
