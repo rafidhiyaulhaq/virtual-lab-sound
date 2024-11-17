@@ -37,37 +37,53 @@ const UMLGenerator = () => {
   }, [isMobile]);
 
   const useCaseDiagram = `
-    graph TD
-    subgraph Virtual Lab Sound
-      User((User))
-      
-      RegLog[Register/Login]
-      WaveGen[Generate Wave]
-      SoundAnal[Analyze Sound]
-      DopplerSim[Simulate Doppler]
-      ViewProf[View Profile]
-      GiveFeed[Give Feedback]
-      ViewAnal[View Analytics]
-      CheckProg[Check Progress]
-      ViewGuide[View Guides]
-      
-      User --> RegLog
-      User --> WaveGen
-      User --> SoundAnal
-      User --> DopplerSim
-      User --> ViewProf
-      User --> GiveFeed
-      User --> ViewAnal
-      User --> CheckProg
-      User --> ViewGuide
-      
-      WaveGen --> SaveExp[Save Experiment]
-      SoundAnal --> SaveExp
-      DopplerSim --> SaveExp
-      
-      GiveFeed --> UpdateProg[Update Progress]
-      SaveExp --> UpdateProg
+    %%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px'}}}%%
+    flowchart TD
+    subgraph System Boundary[Virtual Lab Sound System]
+        RegLogin(Register/Login)
+        GenWave(Generate Waves)
+        AnalSound(Analyze Sound)
+        SimDoppler(Simulate Doppler)
+        ViewProfile(View Profile)
+        GiveFeedback(Give Feedback)
+        ViewAnalytics(View Analytics)
+        CheckProgress(Check Progress)
+        ViewGuides(View Guides)
+        SaveResults(Save Results)
+        UpdateProgress(Update Progress)
+
+        GenWave --> SaveResults
+        AnalSound --> SaveResults
+        SimDoppler --> SaveResults
+        SaveResults --> UpdateProgress
+        GiveFeedback --> UpdateProgress
     end
+
+    Student((:Student))
+
+    Student --> RegLogin
+    Student --> GenWave
+    Student --> AnalSound
+    Student --> SimDoppler
+    Student --> ViewProfile
+    Student --> GiveFeedback
+    Student --> ViewAnalytics
+    Student --> CheckProgress
+    Student --> ViewGuides
+
+    style System Boundary fill:#f9f9f9,stroke:#666,stroke-width:2px
+    style Student fill:#f5f5f5,stroke:#333,stroke-width:2px
+    style RegLogin fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style GenWave fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style AnalSound fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style SimDoppler fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style ViewProfile fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style GiveFeedback fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style ViewAnalytics fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style CheckProgress fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style ViewGuides fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style SaveResults fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
+    style UpdateProgress fill:#ffe0e0,stroke:#ff4081,stroke-width:2px
   `;
 
   const sequenceDiagram = `
@@ -281,6 +297,15 @@ const UMLGenerator = () => {
                     overflowY: 'hidden',
                     borderRadius: isMobile ? 1 : 2,
                     maxHeight: isMobile ? '60vh' : '70vh',
+                    '& .mermaid': {
+                      display: 'flex',
+                      justifyContent: 'center',
+                      minWidth: activeTab === 0 ? '800px' : 'auto', // Minimum width for use case diagram
+                      '& svg': {
+                        maxWidth: '100%',
+                        height: 'auto'
+                      }
+                    },
                     '&::-webkit-scrollbar': {
                       width: '8px',
                       height: '8px',
