@@ -37,6 +37,33 @@ A web-based virtual laboratory application for physics learning focused on sound
 - PDF export of results
 - Comprehensive analytics
 
+### System Component
+User Management:
+├── Authentication Flow
+│   ├── Login/Register
+│   └── Profile Management
+├── Progress Tracking
+│   ├── Experiment History
+│   ├── Achievement System
+│   └── Analytics Dashboard
+└── Feedback System
+    ├── User Ratings
+    └── Comments/Suggestions
+
+Experiment Systems:
+├── Wave Generator
+│   ├── Wave Type Selection
+│   ├── Parameter Controls
+│   └── Real-time Visualization
+├── Sound Analysis
+│   ├── Audio Recording
+│   ├── Frequency Analysis
+│   └── Spectrum Display
+└── Doppler Effect
+    ├── Source Movement
+    ├── Frequency Shifting
+    └── Interactive Simulation
+
 ## Tech Stack
 ### Frontend
 - React 18
