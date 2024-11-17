@@ -1,4 +1,3 @@
-// src/components/experiments/DopplerEffect.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Container,
@@ -13,9 +12,11 @@ import {
   MenuItem,
   Box,
   Alert,
-  Snackbar
+  Snackbar,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
-import { Help } from '@mui/icons-material';
+import { Help, Speed, PlayArrow, Stop, Save } from '@mui/icons-material';
 import * as d3 from 'd3';
 import { useAuth } from '../../context/AuthContext';
 import { saveExperimentResult } from '../../firebase/results';
@@ -27,6 +28,11 @@ import TipsAndGuides from '../../components/tutorial/TipsAndGuides';
 
 const DopplerEffect = () => {
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+
+  // States
   const [isPlaying, setIsPlaying] = useState(false);
   const [sourceSpeed, setSourceSpeed] = useState(30);
   const [frequency, setFrequency] = useState(440);
@@ -41,6 +47,7 @@ const DopplerEffect = () => {
     severity: 'success'
   });
   
+  // Refs
   const audioContextRef = useRef();
   const oscillatorRef = useRef();
   const animationFrameRef = useRef();
@@ -75,7 +82,7 @@ const DopplerEffect = () => {
       .attr("class", "observer")
       .attr("cx", `${observerPosition}%`)
       .attr("cy", "50%")
-      .attr("r", 10)
+      .attr("r", isMobile ? 6 : 10)
       .attr("fill", "#2196f3");
 
     svg.append("text")
@@ -83,31 +90,37 @@ const DopplerEffect = () => {
       .attr("x", `${observerPosition}%`)
       .attr("y", "60%")
       .attr("text-anchor", "middle")
+      .style("font-size", isMobile ? "10px" : "12px")
       .text("Observer");
 
     const graphSvg = d3.select(graphRef.current);
     graphSvg.selectAll("*").remove();
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const margin = isMobile 
+      ? { top: 10, right: 10, bottom: 20, left: 30 }
+      : { top: 20, right: 20, bottom: 30, left: 40 };
+    
     const width = graphSvg.node().getBoundingClientRect().width - margin.left - margin.right;
-    const height = 150 - margin.top - margin.bottom;
+    const height = (isMobile ? 120 : 150) - margin.top - margin.bottom;
 
     const g = graphSvg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     g.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(d3.scaleLinear().range([0, width])));
+      .call(d3.axisBottom(d3.scaleLinear().range([0, width])))
+      .style("font-size", isMobile ? "10px" : "12px");
 
     g.append("g")
-      .call(d3.axisLeft(d3.scaleLinear().domain([0, 1000]).range([height, 0])));
+      .call(d3.axisLeft(d3.scaleLinear().domain([0, 1000]).range([height, 0])))
+      .style("font-size", isMobile ? "10px" : "12px");
 
     g.append("path")
       .attr("class", "frequency-line")
       .attr("fill", "none")
       .attr("stroke", "#f50057")
-      .attr("stroke-width", 2);
-  }, [observerPosition]);
+      .attr("stroke-width", isMobile ? 1.5 : 2);
+  }, [observerPosition, isMobile]);
 
   useEffect(() => {
     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -127,10 +140,10 @@ const DopplerEffect = () => {
 
   const calculateDopplerFrequency = useCallback((baseFreq, sourcePos) => {
     const speedOfSound = 343;
-    const observerPos = (observerPosition / 100) * window.innerWidth;
+    const observerPos = (observerPosition / 100) * (isMobile ? window.innerWidth * 0.9 : window.innerWidth);
     const sourceVelocity = sourceSpeed * (sourcePos > observerPos ? -1 : 1);
     return baseFreq * ((speedOfSound) / (speedOfSound + sourceVelocity));
-  }, [observerPosition, sourceSpeed]);
+  }, [observerPosition, sourceSpeed, isMobile]);
 
   const startSimulation = () => {
     if (!audioContextRef.current) return;
@@ -149,7 +162,8 @@ const DopplerEffect = () => {
     const frequencyData = [];
     
     const animate = () => {
-      sourcePos = (sourcePos + sourceSpeed/10) % window.innerWidth;
+      const containerWidth = isMobile ? window.innerWidth * 0.9 : window.innerWidth;
+      sourcePos = (sourcePos + sourceSpeed/10) % containerWidth;
       const dopplerFreq = calculateDopplerFrequency(frequency, sourcePos);
       oscillator.frequency.setValueAtTime(dopplerFreq, audioContextRef.current.currentTime);
       
@@ -157,26 +171,27 @@ const DopplerEffect = () => {
       svg.selectAll(".source").remove();
       svg.append("circle")
         .attr("class", "source")
-        .attr("cx", `${(sourcePos/window.innerWidth) * 100}%`)
+        .attr("cx", `${(sourcePos/containerWidth) * 100}%`)
         .attr("cy", "50%")
-        .attr("r", 8)
+        .attr("r", isMobile ? 6 : 8)
         .attr("fill", "#f50057");
 
-      const observerPos = (observerPosition / 100) * window.innerWidth;
+      const observerPos = (observerPosition / 100) * containerWidth;
       const distance = Math.abs(sourcePos - observerPos);
-      const volume = Math.max(0.1, 1 - (distance / window.innerWidth));
+      const volume = Math.max(0.1, 1 - (distance / containerWidth));
       gainNode.gain.setValueAtTime(volume * 0.1, audioContextRef.current.currentTime);
 
       frequencyData.push({ x: sourcePos, y: dopplerFreq });
-      if (frequencyData.length > 100) frequencyData.shift();
+      if (frequencyData.length > (isMobile ? 50 : 100)) frequencyData.shift();
 
       const graphSvg = d3.select(graphRef.current);
-      const width = graphSvg.node().getBoundingClientRect().width - 60;
-      const height = 150 - 50;
+      const width = graphSvg.node().getBoundingClientRect().width - (isMobile ? 40 : 60);
+      const height = (isMobile ? 120 : 150) - (isMobile ? 30 : 50);
 
       const line = d3.line()
-        .x(d => (d.x / window.innerWidth) * width)
-        .y(d => height - ((d.y / 1000) * height));
+        .x(d => (d.x / containerWidth) * width)
+        .y(d => height - ((d.y / 1000) * height))
+        .curve(d3.curveMonotoneX);
 
       graphSvg.select(".frequency-line")
         .datum(frequencyData)
@@ -236,25 +251,93 @@ const DopplerEffect = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Doppler Effect Simulator
-      </Typography>
+    <Container 
+      maxWidth="lg" 
+      sx={{ 
+        mt: isMobile ? 2 : 4, 
+        mb: isMobile ? 2 : 4,
+        px: isMobile ? 1 : 3
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: isMobile ? 2 : 3,
+          flexDirection: isMobile ? 'column' : 'row',
+          textAlign: isMobile ? 'center' : 'left',
+          gap: isMobile ? 1 : 2
+        }}
+      >
+        <Speed sx={{ 
+          fontSize: isMobile ? 32 : 40, 
+          color: '#FF4081',
+          mr: isMobile ? 0 : 2 
+        }} />
+        <Typography 
+          variant={isMobile ? "h5" : "h4"}
+          sx={{
+            fontWeight: 600,
+            color: '#37474F',
+            background: 'linear-gradient(45deg, #37474F, #FF4081)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          Doppler Effect Simulator
+        </Typography>
+      </Box>
 
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ width: '100%', height: '150px', mb: 3 }}>
-          <svg ref={svgRef} width="100%" height="100%" style={{ border: '1px solid #ddd', borderRadius: '4px' }}>
-          </svg>
+      <Paper 
+        sx={{ 
+          p: isMobile ? 2 : 3, 
+          mb: isMobile ? 2 : 3,
+          background: 'linear-gradient(135deg, rgba(55, 71, 79, 0.02), rgba(255, 64, 129, 0.02))',
+          borderRadius: isMobile ? 2 : 3,
+          border: '1px solid rgba(55, 71, 79, 0.08)',
+          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          '&:hover': {
+            transform: isTablet ? 'none' : 'translateY(-4px)',
+            boxShadow: '0 8px 24px rgba(55, 71, 79, 0.12)'
+          }
+        }}
+      >
+        <Box 
+          sx={{ 
+            width: '100%', 
+            height: isMobile ? '120px' : '150px', 
+            mb: isMobile ? 2 : 3,
+            border: '1px solid rgba(55, 71, 79, 0.1)',
+            borderRadius: isMobile ? 1 : 2,
+            overflow: 'hidden'
+          }}
+        >
+          <svg ref={svgRef} width="100%" height="100%"></svg>
         </Box>
 
-        <Box sx={{ width: '100%', height: '150px', mb: 3 }}>
-          <svg ref={graphRef} width="100%" height="100%" style={{ border: '1px solid #ddd', borderRadius: '4px' }}>
-          </svg>
+        <Box 
+          sx={{ 
+            width: '100%', 
+            height: isMobile ? '120px' : '150px', 
+            mb: isMobile ? 2 : 3,
+            border: '1px solid rgba(55, 71, 79, 0.1)',
+            borderRadius: isMobile ? 1 : 2,
+            overflow: 'hidden'
+          }}
+        >
+          <svg ref={graphRef} width="100%" height="100%"></svg>
         </Box>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Typography gutterBottom>
+        <Grid container spacing={isMobile ? 2 : 3}>
+          <Grid item xs={12} sm={6} md={6}>
+            <Typography 
+              gutterBottom
+              sx={{ 
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: 500,
+                color: '#37474F'
+              }}
+            >
               Source Speed: {sourceSpeed} m/s
             </Typography>
             <Slider
@@ -265,11 +348,32 @@ const DopplerEffect = () => {
               max={100}
               step={1}
               disabled={isPlaying}
+              size={isMobile ? "small" : "medium"}
+              sx={{
+                color: '#FF4081',
+                '& .MuiSlider-thumb': {
+                  width: isMobile ? 20 : 24,
+                  height: isMobile ? 20 : 24,
+                  '&:hover, &.Mui-focusVisible': {
+                    boxShadow: '0 0 0 8px rgba(255, 64, 129, 0.16)'
+                  }
+                },
+                '& .MuiSlider-track': {
+                  background: 'linear-gradient(45deg, #37474F, #FF4081)'
+                }
+              }}
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Typography gutterBottom>
+          <Grid item xs={12} sm={6} md={6}>
+            <Typography 
+              gutterBottom
+              sx={{ 
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: 500,
+                color: '#37474F'
+              }}
+            >
               Base Frequency: {frequency} Hz
             </Typography>
             <Slider
@@ -280,11 +384,32 @@ const DopplerEffect = () => {
               max={880}
               step={1}
               disabled={isPlaying}
+              size={isMobile ? "small" : "medium"}
+              sx={{
+                color: '#FF4081',
+                '& .MuiSlider-thumb': {
+                  width: isMobile ? 20 : 24,
+                  height: isMobile ? 20 : 24,
+                  '&:hover, &.Mui-focusVisible': {
+                    boxShadow: '0 0 0 8px rgba(255, 64, 129, 0.16)'
+                  }
+                },
+                '& .MuiSlider-track': {
+                  background: 'linear-gradient(45deg, #37474F, #FF4081)'
+                }
+              }}
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Typography gutterBottom>
+          <Grid item xs={12} sm={6} md={6}>
+            <Typography 
+              gutterBottom
+              sx={{ 
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: 500,
+                color: '#37474F'
+              }}
+            >
               Observer Position: {observerPosition}%
             </Typography>
             <Slider
@@ -294,17 +419,57 @@ const DopplerEffect = () => {
               min={0}
               max={100}
               step={1}
+              size={isMobile ? "small" : "medium"}
+              sx={{
+                color: '#FF4081',
+                '& .MuiSlider-thumb': {
+                  width: isMobile ? 20 : 24,
+                  height: isMobile ? 20 : 24,
+                  '&:hover, &.Mui-focusVisible': {
+                    boxShadow: '0 0 0 8px rgba(255, 64, 129, 0.16)'
+                  }
+                },
+                '& .MuiSlider-track': {
+                  background: 'linear-gradient(45deg, #37474F, #FF4081)'
+                }
+              }}
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth className="sound-type-selector">
-              <InputLabel>Sound Type</InputLabel>
+          <Grid item xs={12} sm={6} md={6}>
+            <FormControl 
+              fullWidth 
+              className="sound-type-selector"
+              size={isMobile ? "small" : "medium"}
+            >
+              <InputLabel 
+                sx={{ 
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  color: '#37474F',
+                  '&.Mui-focused': {
+                    color: '#FF4081'
+                  }
+                }}
+              >
+                Sound Type
+              </InputLabel>
               <Select
                 value={soundType}
                 label="Sound Type"
                 onChange={(e) => setSoundType(e.target.value)}
                 disabled={isPlaying}
+                sx={{
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(55, 71, 79, 0.2)'
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 64, 129, 0.3)'
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#FF4081'
+                  }
+                }}
               >
                 <MenuItem value="sine">Sine Wave</MenuItem>
                 <MenuItem value="square">Square Wave</MenuItem>
@@ -315,27 +480,75 @@ const DopplerEffect = () => {
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 2 }}>
+        <Box sx={{ 
+          mt: isMobile ? 2 : 3, 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? 1 : 2,
+          justifyContent: 'center' 
+        }}>
           <Button
+            fullWidth={isMobile}
             variant="contained"
             color={isPlaying ? "secondary" : "primary"}
             onClick={isPlaying ? stopSimulation : startSimulation}
-            sx={{ minWidth: 200 }}
+            size={isMobile ? "medium" : "large"}
+            startIcon={isPlaying ? <Stop /> : <PlayArrow />}
+            sx={{
+              background: isPlaying 
+                ? 'linear-gradient(45deg, #FF4081, #FF80AB)'
+                : 'linear-gradient(45deg, #37474F, #546E7A)',
+              fontSize: isMobile ? '0.9rem' : '1rem',
+              '&:hover': {
+                background: isPlaying
+                  ? 'linear-gradient(45deg, #F50057, #FF4081)'
+                  : 'linear-gradient(45deg, #455A64, #37474F)',
+                transform: isTablet ? 'none' : 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(55, 71, 79, 0.2)'
+              }
+            }}
           >
             {isPlaying ? 'Stop Simulation' : 'Start Simulation'}
           </Button>
           <Button
+            fullWidth={isMobile}
             variant="contained"
             onClick={saveResult}
-            sx={{ minWidth: 200 }}
+            startIcon={<Save />}
+            size={isMobile ? "medium" : "large"}
             disabled={!isPlaying}
+            sx={{
+              background: 'linear-gradient(45deg, #37474F, #FF4081)',
+              fontSize: isMobile ? '0.9rem' : '1rem',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #455A64, #FF80AB)',
+                transform: isTablet ? 'none' : 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(255, 64, 129, 0.3)'
+              },
+              '&.Mui-disabled': {
+                background: 'rgba(55, 71, 79, 0.12)',
+                color: 'rgba(55, 71, 79, 0.4)'
+              }
+            }}
           >
             Save Result
           </Button>
           <Button
+            fullWidth={isMobile}
             variant="outlined"
             onClick={() => setShowGuide(true)}
             startIcon={<Help />}
+            size={isMobile ? "medium" : "large"}
+            sx={{
+              borderColor: '#FF4081',
+              color: '#FF4081',
+              fontSize: isMobile ? '0.9rem' : '1rem',
+              '&:hover': {
+                borderColor: '#FF80AB',
+                backgroundColor: 'rgba(255, 64, 129, 0.05)',
+                transform: isTablet ? 'none' : 'translateY(-2px)'
+              }
+            }}
           >
             Help & Tips
           </Button>
@@ -346,20 +559,31 @@ const DopplerEffect = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ 
+          vertical: isMobile ? 'bottom' : 'top',
+          horizontal: isMobile ? 'center' : 'right'
+        }}
       >
         <Alert 
           onClose={() => setSnackbar({ ...snackbar, open: false })} 
           severity={snackbar.severity}
+          sx={{
+            fontSize: isMobile ? '0.875rem' : '1rem',
+            '&.MuiAlert-standardSuccess': {
+              backgroundImage: 'linear-gradient(45deg, rgba(55, 71, 79, 0.05), rgba(255, 64, 129, 0.05))'
+            }
+          }}
         >
           {snackbar.message}
         </Alert>
       </Snackbar>
+
       <ExperimentFeedback
         open={showFeedback}
         onClose={() => setShowFeedback(false)}
         experimentType="doppler-effect"
       />
+
       <TipsAndGuides 
         open={showGuide}
         onClose={() => setShowGuide(false)}
