@@ -1,4 +1,3 @@
-// src/components/feedback/ExperimentFeedback.jsx
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -17,7 +16,9 @@ import {
   FormControlLabel,
   Radio,
   Alert,
-  Snackbar
+  Snackbar,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import { saveFeedback } from '../../firebase/feedback';
@@ -27,6 +28,10 @@ const experienceLabels = ['Confusing', 'Neutral', 'Intuitive', 'Excellent'];
 
 const ExperimentFeedback = ({ open, onClose, experimentType }) => {
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+
   const [rating, setRating] = useState(0);
   const [difficulty, setDifficulty] = useState('');
   const [experience, setExperience] = useState('');
@@ -81,22 +86,65 @@ const ExperimentFeedback = ({ open, onClose, experimentType }) => {
         onClose={onClose}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
+        PaperProps={{
+          sx: {
+            m: isMobile ? 0 : 2,
+            borderRadius: isMobile ? 0 : 2
+          }
+        }}
       >
-        <DialogTitle>
+        <DialogTitle sx={{ 
+          fontSize: isMobile ? '1.25rem' : '1.5rem',
+          px: isMobile ? 2 : 3,
+          py: isMobile ? 1.5 : 2,
+          background: 'linear-gradient(135deg, rgba(55, 71, 79, 0.02), rgba(255, 64, 129, 0.02))',
+          color: '#37474F',
+          fontWeight: 600
+        }}>
           How was your experience?
         </DialogTitle>
-        <DialogContent>
-          <Box sx={{ my: 2 }}>
-            <Typography component="legend">Overall Rating</Typography>
+        <DialogContent sx={{ p: isMobile ? 2 : 3 }}>
+          <Box sx={{ my: isMobile ? 1.5 : 2 }}>
+            <Typography 
+              component="legend" 
+              sx={{ 
+                mb: 1,
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: 500
+              }}
+            >
+              Overall Rating
+            </Typography>
             <Rating
               value={rating}
               onChange={(event, newValue) => setRating(newValue)}
-              size="large"
+              size={isMobile ? "medium" : "large"}
+              sx={{
+                '& .MuiRating-icon': {
+                  color: '#FF4081'
+                }
+              }}
             />
           </Box>
 
-          <FormControl component="fieldset" sx={{ my: 2 }}>
-            <FormLabel component="legend">Difficulty Level</FormLabel>
+          <FormControl 
+            component="fieldset" 
+            sx={{ 
+              my: isMobile ? 1.5 : 2,
+              width: '100%'
+            }}
+          >
+            <FormLabel 
+              component="legend"
+              sx={{
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: 500,
+                color: '#37474F'
+              }}
+            >
+              Difficulty Level
+            </FormLabel>
             <RadioGroup
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
@@ -105,16 +153,42 @@ const ExperimentFeedback = ({ open, onClose, experimentType }) => {
                 <FormControlLabel
                   key={level}
                   value={level}
-                  control={<Radio />}
+                  control={
+                    <Radio 
+                      sx={{
+                        '&.Mui-checked': {
+                          color: '#FF4081'
+                        }
+                      }}
+                    />
+                  }
                   label={level}
+                  sx={{
+                    '& .MuiFormControlLabel-label': {
+                      fontSize: isMobile ? '0.9rem' : '1rem'
+                    }
+                  }}
                 />
               ))}
             </RadioGroup>
           </FormControl>
 
-          <Box sx={{ my: 2 }}>
-            <Typography gutterBottom>User Experience</Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ my: isMobile ? 1.5 : 2 }}>
+            <Typography 
+              gutterBottom
+              sx={{ 
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: 500,
+                mb: 1
+              }}
+            >
+              User Experience
+            </Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 1,
+              flexWrap: 'wrap'
+            }}>
               {experienceLabels.map((label) => (
                 <Chip
                   key={label}
@@ -122,6 +196,12 @@ const ExperimentFeedback = ({ open, onClose, experimentType }) => {
                   onClick={() => setExperience(label)}
                   color={experience === label ? "primary" : "default"}
                   variant={experience === label ? "filled" : "outlined"}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    '&.MuiChip-colorPrimary': {
+                      bgcolor: '#FF4081'
+                    }
+                  }}
                 />
               ))}
             </Box>
@@ -131,28 +211,75 @@ const ExperimentFeedback = ({ open, onClose, experimentType }) => {
             fullWidth
             label="What could be improved?"
             multiline
-            rows={2}
+            rows={isMobile ? 2 : 3}
             value={improvement}
             onChange={(e) => setImprovement(e.target.value)}
-            sx={{ my: 2 }}
+            sx={{ 
+              my: isMobile ? 1.5 : 2,
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#FF4081'
+                }
+              },
+              '& label.Mui-focused': {
+                color: '#FF4081'
+              }
+            }}
           />
 
           <TextField
             fullWidth
             label="Additional Comments"
             multiline
-            rows={3}
+            rows={isMobile ? 3 : 4}
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            sx={{ my: 2 }}
+            sx={{ 
+              my: isMobile ? 1.5 : 2,
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#FF4081'
+                }
+              },
+              '& label.Mui-focused': {
+                color: '#FF4081'
+              }
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Skip</Button>
+        <DialogActions sx={{ 
+          p: isMobile ? 2 : 3,
+          gap: 1
+        }}>
+          <Button 
+            onClick={onClose}
+            size={isMobile ? "medium" : "large"}
+            sx={{
+              color: '#546E7A',
+              '&:hover': {
+                backgroundColor: 'rgba(84, 110, 122, 0.05)'
+              }
+            }}
+          >
+            Skip
+          </Button>
           <Button 
             onClick={handleSubmit}
             variant="contained"
             disabled={!rating}
+            size={isMobile ? "medium" : "large"}
+            sx={{
+              background: 'linear-gradient(45deg, #37474F, #FF4081)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #455A64, #FF80AB)',
+                transform: isTablet ? 'none' : 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(255, 64, 129, 0.3)'
+              },
+              '&.Mui-disabled': {
+                background: 'rgba(55, 71, 79, 0.12)',
+                color: 'rgba(55, 71, 79, 0.4)'
+              }
+            }}
           >
             Submit Feedback
           </Button>
@@ -163,10 +290,20 @@ const ExperimentFeedback = ({ open, onClose, experimentType }) => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ 
+          vertical: isMobile ? 'bottom' : 'top',
+          horizontal: isMobile ? 'center' : 'right'
+        }}
       >
         <Alert 
           severity={snackbar.severity}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
+          sx={{
+            fontSize: isMobile ? '0.875rem' : '1rem',
+            '&.MuiAlert-standardSuccess': {
+              backgroundImage: 'linear-gradient(45deg, rgba(55, 71, 79, 0.05), rgba(255, 64, 129, 0.05))'
+            }
+          }}
         >
           {snackbar.message}
         </Alert>

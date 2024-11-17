@@ -36,44 +36,38 @@ const UMLGenerator = () => {
     });
   }, [isMobile]);
 
-  const classDiagram = `
-    classDiagram
-      class User {
-        +String uid
-        +String email
-        +String displayName
-        +String institution
-        +String role
-      }
+  const useCaseDiagram = `
+    graph TD
+    subgraph Virtual Lab Sound
+      User((User))
       
-      class Experiment {
-        +String id
-        +String userId
-        +String experimentType
-        +Object data
-        +Timestamp createdAt
-      }
+      RegLog[Register/Login]
+      WaveGen[Generate Wave]
+      SoundAnal[Analyze Sound]
+      DopplerSim[Simulate Doppler]
+      ViewProf[View Profile]
+      GiveFeed[Give Feedback]
+      ViewAnal[View Analytics]
+      CheckProg[Check Progress]
+      ViewGuide[View Guides]
       
-      class Progress {
-        +String userId
-        +Number waveGeneratorCount
-        +Number soundAnalysisCount
-        +Number dopplerEffectCount
-        +Timestamp lastUpdated
-      }
+      User --> RegLog
+      User --> WaveGen
+      User --> SoundAnal
+      User --> DopplerSim
+      User --> ViewProf
+      User --> GiveFeed
+      User --> ViewAnal
+      User --> CheckProg
+      User --> ViewGuide
       
-      class Feedback {
-        +String id
-        +String userId
-        +String experimentType
-        +Number rating
-        +String comments
-        +Timestamp createdAt
-      }
-
-      User "1" -- "*" Experiment : performs
-      User "1" -- "1" Progress : tracks
-      User "1" -- "*" Feedback : provides
+      WaveGen --> SaveExp[Save Experiment]
+      SoundAnal --> SaveExp
+      DopplerSim --> SaveExp
+      
+      GiveFeed --> UpdateProg[Update Progress]
+      SaveExp --> UpdateProg
+    end
   `;
 
   const sequenceDiagram = `
@@ -117,9 +111,9 @@ const UMLGenerator = () => {
 
   const diagrams = [
     {
-      title: 'Class Diagram',
-      description: 'Shows the structure of the application classes and their relationships',
-      content: classDiagram
+      title: 'Use Case Diagram',
+      description: 'Shows the interactions between users and system features',
+      content: useCaseDiagram
     },
     {
       title: 'Sequence Diagram',
@@ -167,7 +161,6 @@ const UMLGenerator = () => {
       });
     }
   };
-
   return (
     <Container 
       maxWidth="lg" 
@@ -285,7 +278,21 @@ const UMLGenerator = () => {
                     p: isMobile ? 1 : 2, 
                     bgcolor: 'grey.50',
                     overflowX: 'auto',
-                    borderRadius: isMobile ? 1 : 2
+                    overflowY: 'hidden',
+                    borderRadius: isMobile ? 1 : 2,
+                    maxHeight: isMobile ? '60vh' : '70vh',
+                    '&::-webkit-scrollbar': {
+                      width: '8px',
+                      height: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      background: '#f1f1f1',
+                      borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: '#888',
+                      borderRadius: '4px',
+                    }
                   }}
                 >
                   <div className="mermaid-diagram">

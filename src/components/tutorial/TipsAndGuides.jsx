@@ -1,4 +1,3 @@
-// src/components/tutorial/TipsAndGuides.jsx
 import React, { useState } from 'react';
 import {
   Drawer,
@@ -10,7 +9,9 @@ import {
   IconButton,
   Box,
   Divider,
-  Collapse
+  Collapse,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import {
   LightbulbOutlined,
@@ -62,6 +63,9 @@ const guides = {
 
 const TipsAndGuides = ({ open, onClose }) => {
   const [expanded, setExpanded] = useState('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleExpand = (section) => {
     setExpanded(expanded === section ? '' : section);
@@ -69,48 +73,159 @@ const TipsAndGuides = ({ open, onClose }) => {
 
   return (
     <Drawer
-      anchor="right"
+      anchor={isMobile ? "bottom" : "right"}
       open={open}
       onClose={onClose}
-      sx={{ '& .MuiDrawer-paper': { width: 320 } }}
+      sx={{ 
+        '& .MuiDrawer-paper': { 
+          width: isMobile ? '100%' : isTablet ? 280 : 320,
+          maxHeight: isMobile ? '80vh' : '100vh',
+          borderTopLeftRadius: isMobile ? 16 : 0,
+          borderTopRightRadius: isMobile ? 16 : 0
+        } 
+      }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2 }}>
-        <Typography variant="h6">Tips & Guides</Typography>
-        <IconButton onClick={onClose}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          p: isMobile ? 1.5 : 2,
+          background: 'linear-gradient(135deg, rgba(55, 71, 79, 0.02), rgba(255, 64, 129, 0.02))',
+          borderBottom: '1px solid rgba(55, 71, 79, 0.08)'
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <School 
+            sx={{ 
+              color: '#FF4081',
+              fontSize: isMobile ? 24 : 28
+            }} 
+          />
+          <Typography 
+            variant={isMobile ? "subtitle1" : "h6"}
+            sx={{
+              fontWeight: 600,
+              background: 'linear-gradient(45deg, #37474F, #FF4081)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            Tips & Guides
+          </Typography>
+        </Box>
+        <IconButton 
+          onClick={onClose}
+          size={isMobile ? "small" : "medium"}
+        >
           <Close />
         </IconButton>
       </Box>
-      <Divider />
-      <List>
+
+      <List sx={{ overflowY: 'auto', pt: 0 }}>
         {Object.entries(guides).map(([experiment, content]) => (
           <React.Fragment key={experiment}>
-            <ListItem button onClick={() => handleExpand(experiment)}>
+            <ListItem 
+              button 
+              onClick={() => handleExpand(experiment)}
+              sx={{
+                py: isMobile ? 1.5 : 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 64, 129, 0.05)'
+                }
+              }}
+            >
               <ListItemIcon>
-                <School />
+                <School sx={{ color: '#FF4081' }} />
               </ListItemIcon>
-              <ListItemText primary={experiment} />
+              <ListItemText 
+                primary={experiment}
+                primaryTypographyProps={{
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontWeight: 500
+                }} 
+              />
               {expanded === experiment ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
             <Collapse in={expanded === experiment} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                <ListItem sx={{ pl: 4 }}>
+                <ListItem sx={{ pl: isMobile ? 3 : 4 }}>
                   <Box>
-                    <Typography variant="subtitle2" color="primary" gutterBottom>
+                    <Typography 
+                      variant="subtitle2" 
+                      sx={{ 
+                        color: '#FF4081',
+                        fontWeight: 600,
+                        mb: 1,
+                        fontSize: isMobile ? '0.85rem' : '0.9rem'
+                      }}
+                    >
                       Tips:
                     </Typography>
                     {content.tips.map((tip, index) => (
-                      <Box key={index} sx={{ display: 'flex', mb: 1 }}>
-                        <LightbulbOutlined sx={{ mr: 1, color: 'warning.main' }} />
-                        <Typography variant="body2">{tip}</Typography>
+                      <Box 
+                        key={index} 
+                        sx={{ 
+                          display: 'flex', 
+                          mb: isMobile ? 0.75 : 1,
+                          alignItems: 'flex-start'
+                        }}
+                      >
+                        <LightbulbOutlined 
+                          sx={{ 
+                            mr: 1, 
+                            color: 'warning.main',
+                            fontSize: isMobile ? 18 : 20,
+                            mt: 0.2
+                          }} 
+                        />
+                        <Typography 
+                          variant="body2"
+                          sx={{
+                            fontSize: isMobile ? '0.8rem' : '0.875rem'
+                          }}
+                        >
+                          {tip}
+                        </Typography>
                       </Box>
                     ))}
-                    <Typography variant="subtitle2" color="primary" gutterBottom sx={{ mt: 2 }}>
+                    <Typography 
+                      variant="subtitle2" 
+                      sx={{ 
+                        color: '#FF4081',
+                        fontWeight: 600,
+                        mt: 2,
+                        mb: 1,
+                        fontSize: isMobile ? '0.85rem' : '0.9rem'
+                      }}
+                    >
                       How it works:
                     </Typography>
                     {content.explanations.map((exp, index) => (
-                      <Box key={index} sx={{ display: 'flex', mb: 1 }}>
-                        <Help sx={{ mr: 1, color: 'info.main' }} />
-                        <Typography variant="body2">{exp}</Typography>
+                      <Box 
+                        key={index} 
+                        sx={{ 
+                          display: 'flex', 
+                          mb: isMobile ? 0.75 : 1,
+                          alignItems: 'flex-start'
+                        }}
+                      >
+                        <Help 
+                          sx={{ 
+                            mr: 1, 
+                            color: 'info.main',
+                            fontSize: isMobile ? 18 : 20,
+                            mt: 0.2
+                          }} 
+                        />
+                        <Typography 
+                          variant="body2"
+                          sx={{
+                            fontSize: isMobile ? '0.8rem' : '0.875rem'
+                          }}
+                        >
+                          {exp}
+                        </Typography>
                       </Box>
                     ))}
                   </Box>
