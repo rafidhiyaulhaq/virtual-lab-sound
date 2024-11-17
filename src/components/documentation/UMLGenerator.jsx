@@ -36,54 +36,6 @@ const UMLGenerator = () => {
     });
   }, [isMobile]);
 
-  const useCaseDiagram = `
-    %%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px'}}}%%
-    graph LR
-    
-    Student(("👤 Student"))
-    
-    subgraph Virtual Lab Sound System
-        direction LR
-        
-        R[Register/Login]
-        W[Generate Waves]
-        S[Analyze Sound]
-        D[Simulate Doppler]
-        P[View Profile]
-        F[Give Feedback]
-        A[View Analytics]
-        C[Check Progress]
-        G[View Guides]
-        SR[Save Results]
-        UP[Update Progress]
-        
-        W --> SR
-        S --> SR
-        D --> SR
-        SR --> UP
-        F --> UP
-    end
-    
-    Student --> R
-    Student --> W
-    Student --> S
-    Student --> D
-    Student --> P
-    Student --> F
-    Student --> A
-    Student --> C
-    Student --> G
-
-    %% Styling
-    classDef systemBoundary fill:#f8f9fa,stroke:#666,stroke-width:2px
-    classDef actor fill:#f5f5f5,stroke:#333,stroke-width:2px
-    classDef useCase fill:#fff0f3,stroke:#ff4081,stroke-width:2px,rx:10,ry:10
-    
-    class Virtual Lab Sound System systemBoundary
-    class Student actor
-    class R,W,S,D,P,F,A,C,G,SR,UP useCase
-  `;
-
   const sequenceDiagram = `
     sequenceDiagram
       participant U as User
@@ -124,11 +76,6 @@ const UMLGenerator = () => {
   `;
 
   const diagrams = [
-    {
-      title: 'Use Case Diagram',
-      description: 'Shows the interactions between users and system features',
-      content: useCaseDiagram
-    },
     {
       title: 'Sequence Diagram',
       description: 'Illustrates the interaction between different components',
@@ -298,16 +245,10 @@ const UMLGenerator = () => {
                     '& .mermaid': {
                       display: 'flex',
                       justifyContent: 'center',
-                      minWidth: activeTab === 0 ? '1200px' : 'auto', // Increased width for horizontal use case
+                      minWidth: activeTab === 0 ? '800px' : 'auto', // Minimum width for use case diagram
                       '& svg': {
                         maxWidth: '100%',
-                        height: 'auto',
-                        '& .actor': {
-                          fontSize: isMobile ? '14px' : '16px'
-                        },
-                        '& .useCase': {
-                          fontSize: isMobile ? '12px' : '14px'
-                        }
+                        height: 'auto'
                       }
                     },
                     '&::-webkit-scrollbar': {
