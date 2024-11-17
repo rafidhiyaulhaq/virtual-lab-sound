@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/virtual-lab-sound/static/css/main.4c1ef474.css",
-    "main.js": "/virtual-lab-sound/static/js/main.f04e8146.js",
+    "main.js": "/virtual-lab-sound/static/js/main.f547db91.js",
     "static/js/620.19136b42.chunk.js": "/virtual-lab-sound/static/js/620.19136b42.chunk.js",
     "static/js/213.1c85ff2c.chunk.js": "/virtual-lab-sound/static/js/213.1c85ff2c.chunk.js",
     "static/js/732.3e4ece5b.chunk.js": "/virtual-lab-sound/static/js/732.3e4ece5b.chunk.js",
@@ -44,7 +44,7 @@
     "static/js/465.febb5e44.chunk.js": "/virtual-lab-sound/static/js/465.febb5e44.chunk.js",
     "index.html": "/virtual-lab-sound/index.html",
     "main.4c1ef474.css.map": "/virtual-lab-sound/static/css/main.4c1ef474.css.map",
-    "main.f04e8146.js.map": "/virtual-lab-sound/static/js/main.f04e8146.js.map",
+    "main.f547db91.js.map": "/virtual-lab-sound/static/js/main.f547db91.js.map",
     "620.19136b42.chunk.js.map": "/virtual-lab-sound/static/js/620.19136b42.chunk.js.map",
     "213.1c85ff2c.chunk.js.map": "/virtual-lab-sound/static/js/213.1c85ff2c.chunk.js.map",
     "732.3e4ece5b.chunk.js.map": "/virtual-lab-sound/static/js/732.3e4ece5b.chunk.js.map",
@@ -83,6 +83,6 @@
   },
   "entrypoints": [
     "static/css/main.4c1ef474.css",
-    "static/js/main.f04e8146.js"
+    "static/js/main.f547db91.js"
   ]
 }
